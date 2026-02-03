@@ -1,9 +1,7 @@
 import { createElement, JSX, useEffect, useRef } from "react";
 import { AppNode } from "../nodes/types";
-import SensorDetails from "./MoreDetailsNodes/SensorDetails";
 import { useStoreNode, AppStateNode } from "../store";
 import { useShallow } from "zustand/shallow";
-import ActuatorDetails from "./MoreDetailsNodes/ActuatorDetails";
 import { X, Settings2, ChevronRight } from "lucide-react";
 import ConditionDetails from "./MoreDetailsNodes/ ConditionDetails";
 import FilterDetails from "./MoreDetailsNodes/FilterDetails";
@@ -25,13 +23,10 @@ const detailsNodeByType: Record<
   Exclude<AppNode["type"], undefined> | string,
   JSX.ElementType
 > = {
-  sensor: SensorDetails,
   condition: ConditionDetails,
-  actuator: ActuatorDetails,
   filter: FilterDetails,
   dateTime: DateTimeDetails,
   debugger: DebuggerDetails,
-  timeout: SensorDetails,
 };
 
 function RightSideMoreDetails({ id, type, data }: TProps) {
@@ -101,15 +96,14 @@ function RightSideMoreDetails({ id, type, data }: TProps) {
                 <span
                   className={`
                   text-sm px-3 py-1 rounded-full
-                  ${
-                    type === "sensor"
+                  ${type === "sensor"
                       ? "bg-blue-100 text-blue-700"
                       : type === "condition"
-                      ? "bg-purple-100 text-purple-700"
-                      : type === "actuator"
-                      ? "bg-orange-100 text-orange-700"
-                      : "bg-gray-100 text-gray-700"
-                  }
+                        ? "bg-purple-100 text-purple-700"
+                        : type === "actuator"
+                          ? "bg-orange-100 text-orange-700"
+                          : "bg-gray-100 text-gray-700"
+                    }
                 `}
                 >
                   {" "}

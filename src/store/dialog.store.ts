@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { AppStateDialog, DialogConfig } from "./type";
-import axios from "axios";
 import { useStoreNode } from "./node.store";
+import { useFlowStore } from "./flow.store";
 
 const useStoreDialog = create<AppStateDialog>((set) => ({
   dialog: null,
@@ -27,7 +27,6 @@ const useStoreDialog = create<AppStateDialog>((set) => ({
   },
 
   saveAutomation: async () => {
-    const { nodes, edges } = useStoreNode.getState();
     const dialog: DialogConfig = {
       isOpen: true,
       title: "Save Automation",
@@ -37,10 +36,8 @@ const useStoreDialog = create<AppStateDialog>((set) => ({
       cancelText: "Cancel",
       onConfirm: async () => {
         try {
-          await axios.post("http://localhost:5000/api/automations", {
-            nodes,
-            edges,
-          });
+          await useFlowStore.getState().saveCurrentFlow();
+
           // Show success dialog
           set({
             dialog: {

@@ -136,5 +136,5 @@ src/
 
 ## License
 
-MIT
+MIT © [Sapliy](https://github.com/sapliy)
 

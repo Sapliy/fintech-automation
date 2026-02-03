@@ -1,32 +1,43 @@
 'use client';
 
-import { Activity, FileText, GitGraph, LayoutDashboard, Settings } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Zap, LayoutDashboard, Database, Activity, Settings, Package, Code, FileText, GitGraph } from 'lucide-react';
 import ZoneSelector from './ZoneSelector';
+import { useAuthStore } from '@/store/auth.store';
+import { useRouter, usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
-    { to: '/', icon: GitGraph, label: 'Builder' },
+    { to: '/', icon: Zap, label: 'Dashboard' },
+    { to: '/builder', icon: GitGraph, label: 'Builder' },
     { to: '/templates', icon: LayoutDashboard, label: 'Templates' },
+    { to: '/data', icon: Database, label: 'Data' },
     { to: '/timeline', icon: Activity, label: 'Timeline' },
-    { to: '/transactions', icon: FileText, label: 'Transactions' },
-    { to: '/audit', icon: Settings, label: 'Audit Logs' },
+    { to: '/packages', icon: Package, label: 'Packages' },
+    { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
 const SidebarNav = () => {
     const pathname = usePathname();
+    const { zones, zone, setZone } = useAuthStore();
+    const router = useRouter();
 
     return (
-        <div className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 z-50">
-            <div className="mb-6">
-                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 mb-4">
-                    <GitGraph className="w-6 h-6 text-white" />
+        <div className="w-60 bg-white border-r border-gray-100 flex flex-col h-screen">
+            <div className="p-6 flex items-center">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-lg shadow-blue-100">
+                    <Zap className="text-white w-5 h-5 fill-current" />
                 </div>
+                <span className="text-xl font-bold tracking-tight text-gray-900">Sapliy</span>
             </div>
 
-            <ZoneSelector />
+            <ZoneSelector
+                zones={zones}
+                selectedZone={zone}
+                onSelect={(z) => setZone(z as any)}
+                onManage={() => router.push('/settings/zones')}
+            />
 
-            <nav className="flex-1 w-full space-y-2 px-2">
+            <nav className="flex-1 w-full overflow-y-auto space-y-2 px-2">
                 {NAV_ITEMS.map((item) => {
                     const isActive = pathname === item.to || (item.to !== '/' && pathname?.startsWith(item.to));
                     return (

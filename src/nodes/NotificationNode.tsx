@@ -4,29 +4,17 @@ import {
     Send,
     Mail,
     MessageSquare,
-    Webhook,
     Activity,
     ChevronDown
 } from 'lucide-react';
 import { useShallow } from 'zustand/shallow';
 import { useStoreNode } from '../store';
 import { nodeColors } from '../utils/edgeStyles';
-import type { Node } from '@xyflow/react';
-
-// Notification channels
-export type NotificationChannel = 'whatsapp' | 'email' | 'slack' | 'discord' | 'sms';
-
-// Node data type
-export interface TNotificationNodeData {
-    label: string;
-    channel: NotificationChannel;
-    template: string;
-    recipient: string;
-    status: 'idle' | 'sending' | 'sent' | 'failed';
-    lastSent?: string;
-}
-
-export type NotificationNode = Node<TNotificationNodeData, 'notification'>;
+import {
+    NotificationChannel,
+    TNotificationData,
+    NotificationNode as TNotificationNode
+} from './types';
 
 const channelConfig: Record<NotificationChannel, {
     label: string;
@@ -70,16 +58,16 @@ const selectorNode = (state: any) => ({
     updateNodeData: state.updateNodeData,
 });
 
-const NotificationNode = ({
+const NotificationNodeComp = ({
     id,
     data,
     selected,
     isConnectable,
-}: NodeProps<NotificationNode>) => {
+}: NodeProps<TNotificationNode>) => {
     const [showChannelDropdown, setShowChannelDropdown] = useState(false);
     const { updateNodeData } = useStoreNode(useShallow(selectorNode));
 
-    const actionColor = nodeColors.actuator;
+    const actionColor = nodeColors.notification;
     const currentChannel = channelConfig[data.channel] || channelConfig.email;
     const ChannelIcon = currentChannel.icon;
 
@@ -96,7 +84,7 @@ const NotificationNode = ({
         updateNodeData?.(id, { template });
     };
 
-    const statusColors = {
+    const statusColors: Record<string, string> = {
         idle: 'bg-gray-100 text-gray-600',
         sending: 'bg-yellow-100 text-yellow-700',
         sent: 'bg-green-100 text-green-700',
@@ -105,7 +93,7 @@ const NotificationNode = ({
 
     return (
         <div
-            style={{ border: `2px solid ${selected ? actionColor.from : 'white'}` }}
+            style={{ border: `2px solid ${selected ? actionColor?.from : 'white'}` }}
             className={`
         shadow-lg rounded-lg bg-white border-2 
         transition-all duration-300 ease-in-out
@@ -117,7 +105,7 @@ const NotificationNode = ({
             <div
                 className="text-white px-4 py-2 rounded-t-lg flex items-center justify-between"
                 style={{
-                    background: `linear-gradient(to right, ${actionColor.from}, ${actionColor.to})`,
+                    background: `linear-gradient(to right, ${actionColor?.from}, ${actionColor?.to})`,
                 }}
             >
                 <div className="flex items-center gap-2">
@@ -213,7 +201,7 @@ const NotificationNode = ({
                 {/* Status */}
                 <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-gray-500">Status</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[data.status || 'idle']}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[(data.status as string) || 'idle']}`}>
                         {data.status || 'idle'}
                     </span>
                 </div>
@@ -226,7 +214,7 @@ const NotificationNode = ({
                 position={Position.Top}
                 style={{
                     top: -6,
-                    backgroundColor: actionColor.from
+                    backgroundColor: actionColor?.from
                 }}
                 className="react-flow__handle-target"
             />
@@ -238,7 +226,7 @@ const NotificationNode = ({
                 id="source"
                 style={{
                     bottom: -4,
-                    backgroundColor: actionColor.to,
+                    backgroundColor: actionColor?.to,
                 }}
                 className="react-flow__handle-source"
                 isConnectable={isConnectable}
@@ -247,4 +235,4 @@ const NotificationNode = ({
     );
 };
 
-export default memo(NotificationNode);
+export default memo(NotificationNodeComp);

@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { AppNode } from '../nodes/types';
 import { Edge } from '@xyflow/react';
 import { useStoreNode } from './node.store';
+import { useAuthStore } from './auth.store';
 
 // Flow Metadata (Lightweight)
 export interface FlowMetadata {
@@ -132,12 +133,22 @@ const useFlowStore = create<FlowState>()(
             }),
 
             loadFlows: async () => {
-                // Simulate API call to fetch flow list
-                set({ savedFlows: [] });
+                const { zone } = useAuthStore.getState();
+                if (!zone) return;
+
+                try {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_URL}/flows?zone_id=${zone.id}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        set({ savedFlows: data });
+                    }
+                } catch (error) {
+                    console.error('Failed to load flows:', error);
+                }
             },
 
             loadTemplates: async () => {
-                // Return metadata only for list
+                // Keep templates mock for now as they are predefined
                 const templateMeta = MOCK_TEMPLATES.map(t => ({
                     id: t.id,
                     name: t.name,
@@ -155,36 +166,42 @@ const useFlowStore = create<FlowState>()(
                 set({ isSaving: true });
                 const { nodes, edges } = useStoreNode.getState();
                 const { currentFlowId, currentFlowName } = get();
+                const { organization, zone } = useAuthStore.getState();
 
-                await new Promise(resolve => setTimeout(resolve, 800));
-
-                const flowData: FlowMetadata = {
-                    id: currentFlowId || `fl_${Date.now()}`,
-                    name: currentFlowName,
-                    description: 'Saved flow',
-                    is_template: false,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
-                    nodeCount: nodes.length
-                };
-
-                const currentSaved = get().savedFlows;
-                const exists = currentSaved.find(f => f.id === flowData.id);
-
-                let newSaved = currentSaved;
-                if (exists) {
-                    newSaved = currentSaved.map(f => f.id === flowData.id ? flowData : f);
-                } else {
-                    newSaved = [...currentSaved, flowData];
+                if (!zone || !organization) {
+                    set({ isSaving: false });
+                    return;
                 }
 
-                set({
-                    savedFlows: newSaved,
-                    currentFlowId: flowData.id,
-                    isSaving: false
-                });
+                const flowData = {
+                    id: currentFlowId || `fl_${Math.random().toString(36).substr(2, 9)}`,
+                    name: currentFlowName,
+                    org_id: organization.id,
+                    zone_id: zone.id,
+                    nodes: nodes,
+                    edges: edges,
+                    enabled: true
+                };
 
-                console.log('Flow Saved:', { ...flowData, nodes, edges });
+                try {
+                    const method = currentFlowId ? 'PUT' : 'POST';
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_URL}/flows`, {
+                        method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(flowData)
+                    });
+
+                    if (response.ok) {
+                        set({
+                            currentFlowId: flowData.id,
+                            isSaving: false
+                        });
+                        await get().loadFlows();
+                    }
+                } catch (error) {
+                    console.error('Failed to save flow:', error);
+                    set({ isSaving: false });
+                }
             },
 
             loadFlowConfig: async (id: string, isTemplate = false) => {

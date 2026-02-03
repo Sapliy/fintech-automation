@@ -20,7 +20,7 @@ export type NodeTypes =
   | 'ai-analysis';
 
 // ===== COMMON TYPES =====
-export type Operator = '>' | '<' | '>=' | '<=' | '==' | '!=' | '===' | '!==';
+export type Operator = '>' | '<' | '>=' | '<=' | '==' | '!=' | '===' | '!==' | 'contains' | 'not_contains' | 'starts_with' | 'ends_with' | 'regex';
 export type ValueType = 'number' | 'text';
 export type ValuesSensor = string | number;
 

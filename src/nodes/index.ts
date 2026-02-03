@@ -1,7 +1,7 @@
 // Node type exports and registry for the Fintech Automation Studio
 import type { NodeTypes } from '@xyflow/react';
 
-// Import existing nodes (kept from IoT)
+// Import existing nodes (Logic/Utilities)
 import ConditionNode from './ConditionNode';
 import FilterNode from './FilterNode';
 import DateTimeNode from './DateTimeNode';

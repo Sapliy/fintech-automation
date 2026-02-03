@@ -164,9 +164,8 @@ const FilterNode = ({
         <div className="flex items-center gap-2">
           <button
             onClick={handleAlertToggle}
-            className={`p-1 rounded-full transition-colors ${
-              isAlertEnabled ? "bg-white/20" : "hover:bg-white/20"
-            }`}
+            className={`p-1 rounded-full transition-colors ${isAlertEnabled ? "bg-white/20" : "hover:bg-white/20"
+              }`}
             title={isAlertEnabled ? "Disable Alerts" : "Enable Alerts"}
           >
             {isAlertEnabled ? (
@@ -192,7 +191,27 @@ const FilterNode = ({
       {/* Body */}
       <div className="px-4 py-3 bg-gray-50">
         <div className="space-y-3">
-          {/* Condition */}
+          {/* Condition & Operator Selection */}
+          <div className="flex gap-2 mb-2">
+            <select
+              className="w-full p-2 border border-gray-300 rounded-md text-sm font-mono"
+              value={data.operator || '=='}
+              onChange={(e) => updateNodeData?.(id, { operator: e.target.value })}
+            >
+              <option value=">">&gt; (Greater than)</option>
+              <option value="<">&lt; (Less than)</option>
+              <option value=">=">&gt;= (Greater or eq)</option>
+              <option value="<=">&lt;= (Less or eq)</option>
+              <option value="==">== (Equal)</option>
+              <option value="!=">!= (Not equal)</option>
+              <option value="contains">contains</option>
+              <option value="not_contains">not contains</option>
+              <option value="starts_with">starts with</option>
+              <option value="ends_with">ends with</option>
+              <option value="regex">regex match</option>
+            </select>
+          </div>
+
           <ConditionExpression
             currentValue={inputValue}
             condition={data.operator}
@@ -209,11 +228,10 @@ const FilterNode = ({
                 <div
                   className={`
                   px-3 py-1 rounded-full text-sm font-medium
-                  ${
-                    inputValue !== null
+                  ${inputValue !== null
                       ? "bg-indigo-100 text-indigo-800"
                       : "bg-gray-100 text-gray-600"
-                  }
+                    }
                   ${isActive ? "animate-pulse" : ""}
                 `}
                 >
@@ -230,11 +248,10 @@ const FilterNode = ({
                 <div
                   className={`
                   px-3 py-1 rounded-full text-sm font-medium
-                  ${
-                    outputValue !== null
+                  ${outputValue !== null
                       ? "bg-green-100 text-green-800"
                       : "bg-gray-100 text-gray-600"
-                  }
+                    }
                   ${isFiltering ? "animate-pulse" : ""}
                 `}
                 >
@@ -251,11 +268,10 @@ const FilterNode = ({
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Status:</span>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      outputValue !== null
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-400"
-                    }`}
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${outputValue !== null
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-400"
+                      }`}
                   >
                     {outputValue !== null ? "Active" : "Inactive"}
                   </span>
@@ -263,11 +279,10 @@ const FilterNode = ({
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Alerts:</span>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      isAlertEnabled
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-400"
-                    }`}
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${isAlertEnabled
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-400"
+                      }`}
                   >
                     {isAlertEnabled ? "Enabled" : "Disabled"}
                   </span>

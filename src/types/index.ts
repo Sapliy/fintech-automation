@@ -7,7 +7,7 @@ export type TContextMenu = {
   right: number | boolean;
   bottom: number | boolean;
 };
-export type Operator = ">" | "<" | ">=" | "<=" | "==" | "!=" | "===" | "!==";
+export type Operator = ">" | "<" | ">=" | "<=" | "==" | "!=" | "===" | "!==" | "contains" | "not_contains" | "starts_with" | "ends_with" | "regex";
 export type ValueType = "number" | "text";
 
 export interface ConditionConfig {

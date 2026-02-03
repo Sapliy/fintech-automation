@@ -25,6 +25,11 @@ export class ConditionEvaluator {
       "!=": (a, b) => a != b,
       "===": (a, b) => a === b,
       "!==": (a, b) => a !== b,
+      "contains": (a, b) => String(a).includes(String(b)),
+      "not_contains": (a, b) => !String(a).includes(String(b)),
+      "starts_with": (a, b) => String(a).startsWith(String(b)),
+      "ends_with": (a, b) => String(a).endsWith(String(b)),
+      "regex": (a, b) => new RegExp(String(b)).test(String(a)),
     };
 
     const opFunc = operators[operator];

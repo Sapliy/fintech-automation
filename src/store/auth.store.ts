@@ -14,11 +14,12 @@ export interface Organization {
     slug: string;
 }
 
-// Project data
-export interface Project {
+// Zone data
+export interface Zone {
     id: string;
     name: string;
     org_id: string;
+    mode: Environment; // 'test' | 'live'
 }
 
 // User data
@@ -38,10 +39,13 @@ interface AuthState {
     // Current organization
     organization: Organization | null;
 
-    // Current project
-    project: Project | null;
+    // Current zone
+    zone: Zone | null;
 
-    // Current environment
+    // Available zones
+    zones: Zone[];
+
+    // Current environment (synced with selected zone mode)
     environment: Environment;
 
     // Auth token
@@ -56,7 +60,8 @@ interface AuthState {
     // Actions
     setUser: (user: User | null) => void;
     setOrganization: (org: Organization | null) => void;
-    setProject: (project: Project | null) => void;
+    setZone: (zone: Zone | null) => void;
+    setZones: (zones: Zone[]) => void;
     setEnvironment: (env: Environment) => void;
     setAccessToken: (token: string | null) => void;
     setLoading: (loading: boolean) => void;
@@ -91,7 +96,8 @@ const useAuthStore = create<AuthState>()(
         (set, get) => ({
             user: null,
             organization: null,
-            project: null,
+            zone: null,
+            zones: [],
             environment: 'test',
             accessToken: null,
             isLoading: false,
@@ -99,7 +105,8 @@ const useAuthStore = create<AuthState>()(
 
             setUser: (user) => set({ user }),
             setOrganization: (organization) => set({ organization }),
-            setProject: (project) => set({ project }),
+            setZone: (zone) => set({ zone, environment: zone?.mode || 'test' }),
+            setZones: (zones) => set({ zones }),
             setEnvironment: (environment) => set({ environment }),
             setAccessToken: (accessToken) => set({ accessToken }),
             setLoading: (isLoading) => set({ isLoading }),
@@ -112,7 +119,7 @@ const useAuthStore = create<AuthState>()(
                 setError(null);
 
                 try {
-                    const authUrl = import.meta.env.VITE_AUTH_URL || 'http://localhost:8080/auth';
+                    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:8080/auth';
 
                     const response = await fetch(`${authUrl}/login`, {
                         method: 'POST',
@@ -148,7 +155,8 @@ const useAuthStore = create<AuthState>()(
                 set({
                     user: null,
                     organization: null,
-                    project: null,
+                    zone: null,
+                    zones: [],
                     accessToken: null,
                     error: null,
                 });
@@ -177,7 +185,8 @@ const useAuthStore = create<AuthState>()(
                 accessToken: state.accessToken,
                 user: state.user,
                 organization: state.organization,
-                project: state.project,
+                zone: state.zone,
+                zones: state.zones,
                 environment: state.environment,
             }),
         }

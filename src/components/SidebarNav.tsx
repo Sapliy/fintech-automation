@@ -3,6 +3,7 @@
 import { Activity, FileText, GitGraph, LayoutDashboard, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import ZoneSelector from './ZoneSelector';
 
 const NAV_ITEMS = [
     { to: '/', icon: GitGraph, label: 'Builder' },
@@ -17,11 +18,13 @@ const SidebarNav = () => {
 
     return (
         <div className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 z-50">
-            <div className="mb-8">
-                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+            <div className="mb-6">
+                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 mb-4">
                     <GitGraph className="w-6 h-6 text-white" />
                 </div>
             </div>
+
+            <ZoneSelector />
 
             <nav className="flex-1 w-full space-y-2 px-2">
                 {NAV_ITEMS.map((item) => {

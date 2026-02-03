@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
-import { useFlowStore } from '../store/flow.store';
-import { LayoutTemplate, Plus, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+'use client';
 
-const FlowTemplates = () => {
+import { useEffect } from 'react';
+import { useFlowStore } from '../../store/flow.store';
+import { LayoutTemplate, Plus, ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+export default function FlowTemplatesPage() {
     const { templates, loadTemplates, createNewFlow } = useFlowStore();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     useEffect(() => {
         loadTemplates();
@@ -13,12 +15,12 @@ const FlowTemplates = () => {
 
     const handleUseTemplate = async (templateId: string, templateName: string) => {
         await createNewFlow(templateName, templateId);
-        navigate('/'); // Go to builder
+        router.push('/'); // Go to builder
     };
 
     const handleCreateEmpty = async () => {
         await createNewFlow("New Automation Flow");
-        navigate('/');
+        router.push('/');
     };
 
     return (
@@ -87,6 +89,4 @@ const FlowTemplates = () => {
             </div>
         </div>
     );
-};
-
-export default FlowTemplates;
+}

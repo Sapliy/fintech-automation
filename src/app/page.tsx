@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useRef } from "react";
 import {
     ReactFlow,
@@ -62,7 +64,7 @@ const selectorNode = (state: AppStateNode) => ({
     closeMoreDetails: state.closeMoreDetails,
 });
 
-export default function FlowBuilder() {
+export default function FlowBuilderPage() {
     const ref = useRef<HTMLDivElement>(null);
 
     const { dialog, setDialog } = useStoreDialog(useShallow(selectorDialog));
@@ -114,7 +116,8 @@ export default function FlowBuilder() {
         }
     };
 
-    const WS_URL = import.meta.env.VITE_WS_URL;
+    // Note: process.env.NEXT_PUBLIC_WS_URL allows exposing env vars to client
+    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/events/stream';
     useWebSocket(WS_URL, handleWebSocketMessage);
 
     return (

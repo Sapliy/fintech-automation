@@ -1,3 +1,5 @@
+'use client';
+
 import { Settings, Shield, AlertTriangle, CheckCircle, Search } from 'lucide-react';
 import { useState } from 'react';
 
@@ -10,7 +12,7 @@ const MOCK_LOGS = [
     { id: 'log_005', action: 'NODE_DELETED', user: 'admin@fintech.io', details: 'Deleted legacy-mqtt-node', timestamp: '2024-03-13T16:20:00Z', status: 'success' },
 ];
 
-const AuditLogs = () => {
+export default function AuditLogsPage() {
     const [filter, setFilter] = useState('');
 
     const filteredLogs = MOCK_LOGS.filter(l =>
@@ -81,6 +83,4 @@ const AuditLogs = () => {
             </div>
         </div>
     );
-};
-
-export default AuditLogs;
+}

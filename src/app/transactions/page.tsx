@@ -1,3 +1,5 @@
+'use client';
+
 import { FileText, Search, Filter, MoreHorizontal, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { useState } from 'react';
 
@@ -12,7 +14,7 @@ const MOCK_TRANSACTIONS = [
     { id: 'txn_129', amount: 15.00, currency: 'USD', status: 'completed', type: 'fee', customer: 'system', date: '2024-03-13T14:10:05Z' },
 ];
 
-const Transactions = () => {
+export default function TransactionsPage() {
     const [filter, setFilter] = useState('');
 
     const filteredTransactions = MOCK_TRANSACTIONS.filter(t =>
@@ -108,6 +110,4 @@ const Transactions = () => {
             </div>
         </div>
     );
-};
-
-export default Transactions;
+}

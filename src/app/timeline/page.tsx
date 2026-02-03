@@ -1,7 +1,9 @@
+'use client';
+
 import { useRef, useEffect } from 'react';
 import { Activity, Clock, CreditCard, Wallet, FileText, Settings, RefreshCw } from 'lucide-react';
-import useEventStream from '../hooks/useEventStream';
-import { EventSource } from '../types/events';
+import useEventStream from '../../hooks/useEventStream';
+import { EventSource } from '../../types/events';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const EventIcon = ({ source }: { source: EventSource }) => {
@@ -14,9 +16,9 @@ const EventIcon = ({ source }: { source: EventSource }) => {
     }
 };
 
-const EventTimeline = () => {
+export default function EventTimelinePage() {
     const { events, connect, isConnected, clearEvents } = useEventStream({
-        url: import.meta.env.VITE_WS_URL || 'ws://localhost:8080/events/stream',
+        url: process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/events/stream',
         autoReconnect: true
     });
 
@@ -123,6 +125,4 @@ const EventTimeline = () => {
             </div>
         </div>
     );
-};
-
-export default EventTimeline;
+}

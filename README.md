@@ -1,46 +1,70 @@
 # Fintech Automation Studio
 
-**Event & Automation Studio for FinTech + Operations**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Build powerful automation flows for payments, notifications, and financial events. Part of the [Sapliy Fintech Ecosystem](https://github.com/Sapliy/fintech-ecosystem).
+**Visual Flow Builder for the Sapliy Fintech Ecosystem**
 
----
+Build event-driven automations for payments, notifications, and financial events — no code required.
 
-## Overview
+## Core Concept
 
-Fintech Automation Studio is a visual flow builder that lets you create event-driven automations for:
-- **Payment Events** — React to Stripe events, payment failures, refunds
-- **Wallet Events** — Balance changes, low balance alerts
-- **Transaction Events** — Ledger entries, audit triggers
-- **System Events** — Scheduled tasks, manual triggers
+Automation Studio implements the **Zone → Event → Flow** model:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Zone (isolated automation space)                   │
+│  ┌───────────┐    ┌───────────┐    ┌────────────┐  │
+│  │  Events   │ → │   Flows   │ → │  Actions    │  │
+│  │ from SDK  │    │ (logic)   │    │ (webhooks) │  │
+│  └───────────┘    └───────────┘    └────────────┘  │
+└─────────────────────────────────────────────────────┘
+```
+
+Each zone has:
+- **Test mode** — Safe experimentation with `pk_test_*` keys
+- **Live mode** — Production events with `pk_live_*` keys
+- Separate logs, flows, and events per mode
 
 ## Features
 
 ### 🎯 Event Triggers
-- Stripe events (payment.succeeded, payment.failed, refund.created)
-- Wallet events (balance.changed, low_balance)
-- Ledger events (transaction.created, entry.posted)
-- Schedule triggers (cron-based)
-- Manual triggers
+| Source | Events |
+|--------|--------|
+| **Payments** | `payment.succeeded`, `payment.failed`, `refund.created` |
+| **Wallets** | `balance.changed`, `low_balance` |
+| **Ledger** | `transaction.created`, `entry.posted` |
+| **Schedule** | Cron-based triggers |
+| **Manual** | Trigger from UI or CLI |
 
 ### 🧠 Logic Nodes
-- **Condition** — If/else branching based on event data
-- **Filter** — Filter events by criteria
-- **Rate Limit** — Prevent action flooding
-- **Approval** — Human approval workflows
-- **Timeout** — Delay and timeout logic
+- **Condition** — If/else branching
+- **Filter** — Event filtering
+- **Rate Limit** — Prevent flooding
+- **Approval** — Human-in-the-loop
+- **Timeout** — Delay and timeout
 
 ### 📤 Action Nodes
+- **Webhooks** — HTTP to external services
 - **Notifications** — WhatsApp, Email, Slack, Discord
-- **Webhooks** — HTTP requests to external services
-- **Audit Log** — Create audit trail entries
-- **Debugger** — Log and inspect flow data
+- **Audit Log** — Create audit entries
+- **Debugger** — Log and inspect
 
-### 🔧 Utilities
-- **AI Analysis** — AI-powered event analysis
-- **Debugger** — Flow debugging and logging
+## Architecture
 
----
+```
+┌─────────────────────────────────────┐
+│  Fintech Automation Studio         │
+│  (This repo - UI only)             │
+└──────────────┬──────────────────────┘
+               │ REST / WebSocket
+               ▼
+┌─────────────────────────────────────┐
+│  fintech-ecosystem                  │
+│  (Events, Flows, Execution)         │
+└─────────────────────────────────────┘
+```
+
+> **Important**: This UI does NOT execute flows. All logic runs in `fintech-ecosystem`.
 
 ## Quick Start
 
@@ -52,61 +76,34 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` to access the Flow Builder.
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────┐
-│ Fintech Automation Studio       │
-│ (Flow Builder UI)               │
-└─────────────┬───────────────────┘
-              │ REST / WebSocket
-┌─────────────▼───────────────────┐
-│ Fintech Ecosystem Core          │
-│ (Events, Ledger, Wallets)       │
-└─────────────────────────────────┘
-              │
-     External Systems (Stripe, Notifications)
-```
-
----
+Open `http://localhost:3000` to access the Flow Builder.
 
 ## Environment Variables
 
 ```env
-# Fintech Ecosystem API
-VITE_API_URL=http://localhost:8080
-VITE_WS_URL=ws://localhost:8080/events
+# API endpoint (required)
+NEXT_PUBLIC_API_URL=http://localhost:8080
 
-# Authentication
-VITE_AUTH_URL=http://localhost:8080/auth
+# WebSocket for real-time events
+NEXT_PUBLIC_WS_URL=ws://localhost:8080/events
 ```
-
----
 
 ## Project Structure
 
 ```
 src/
+├── app/              # Next.js App Router pages
 ├── components/       # UI components
-├── hooks/            # React hooks (useEventStream, useAuth)
-├── nodes/            # Flow node components
-│   ├── triggers/     # Event trigger nodes
-│   ├── logic/        # Condition, filter, approval nodes
-│   └── actions/      # Notification, webhook, audit nodes
-├── pages/            # App pages (EventTimeline, Transactions)
-├── services/         # Business logic services
-├── store/            # Zustand state management
-├── types/            # TypeScript type definitions
-└── utils/            # Utility functions
+│   ├── flow/         # Flow builder components
+│   ├── nodes/        # Node type components
+│   └── ui/           # Shared UI components
+├── hooks/            # React hooks
+├── services/         # API client
+├── store/            # Zustand state
+└── types/            # TypeScript definitions
 ```
 
----
-
-## Core Users
+## User Roles
 
 | Role | Capabilities |
 |------|--------------|
@@ -115,26 +112,23 @@ src/
 | **Developer** | Create and edit automations |
 | **Viewer** | Read-only access |
 
----
-
 ## Roadmap
 
-- **Phase 1** (Current) — Read-only finance, events, automations, notifications
-- **Phase 2** — Approvals, manual actions, IoT plugin
-- **Phase 3** — Paid plans, compliance, marketplace
-
----
+- **Phase 1** ✅ — Core flow builder, events, automations
+- **Phase 2** — Approvals, manual actions
+- **Phase 3** — Marketplace, templates, paid plans
 
 ## Part of Sapliy Fintech Ecosystem
 
-- [fintech-ecosystem](https://github.com/Sapliy/fintech-ecosystem) — Core backend services
-- [fintech-sdk-node](https://github.com/Sapliy/fintech-sdk-node) — Node.js SDK
-- [fintech-sdk-python](https://github.com/Sapliy/fintech-sdk-python) — Python SDK
-- [fintech-sdk-go](https://github.com/Sapliy/fintech-sdk-go) — Go SDK
-
----
+| Repo | Purpose |
+|------|---------|
+| [fintech-ecosystem](https://github.com/Sapliy/fintech-ecosystem) | Core backend (events, flows, execution) |
+| [fintech-sdk-node](https://github.com/Sapliy/fintech-sdk-node) | Node.js SDK |
+| [fintech-sdk-python](https://github.com/Sapliy/fintech-sdk-python) | Python SDK |
+| [fintech-sdk-go](https://github.com/Sapliy/fintech-sdk-go) | Go SDK |
+| [fintech-ui](https://github.com/Sapliy/fintech-ui) | React components |
+| [sapliy-cli](https://github.com/Sapliy/sapliy-cli) | Developer CLI |
 
 ## License
 
 MIT © [Sapliy](https://github.com/sapliy)
-

@@ -1,0 +1,292 @@
+import { Handle, type NodeProps, Position } from "@xyflow/react";
+import { Timer, Play, Pause, RotateCcw, AlertCircle, ChevronDown, ChevronUp, Clock, Bell, BellOff } from "lucide-react";
+import { useState, useEffect, memo } from "react";
+import { nodeColors } from "../utils/edgeStyles";
+import { type TimeoutNode } from "./types";
+import { useStoreNode } from "../store";
+import { useShallow } from "zustand/shallow";
+import { SelectorNode } from "../store/type";
+
+const selectorNode: SelectorNode = (state) => ({
+  getSourceNodes: state.getSourceNodes,
+  updateNodeData: state.updateNodeData,
+});
+
+const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNode>) => {
+  const [remainingTime, setRemainingTime] = useState(data.remainingTime || data.duration);
+  const [isActive, setIsActive] = useState(data.isActive);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isAlertEnabled, setIsAlertEnabled] = useState(data.isAlertEnabled);
+  const timeoutColor = nodeColors.timeout;
+  const { getSourceNodes, updateNodeData } = useStoreNode(useShallow(selectorNode));
+  const sourceNodes = getSourceNodes?.(id) ?? [];
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isActive && remainingTime > 0) {
+      timer = setInterval(() => {
+        setRemainingTime((prev) => {
+          if (prev <= 1) {
+            data.onTimeout?.();
+            if (isAlertEnabled) {
+              // Trigger alert notification
+              console.log("Timeout alert triggered!");
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isActive, remainingTime, data.onTimeout, isAlertEnabled]);
+
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds)) return "00:00";
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const getProgressPercentage = () => {
+    if (isNaN(remainingTime) || isNaN(data.duration)) return 0;
+    return (remainingTime / data.duration) * 100;
+  };
+
+  const handleStart = () => {
+    setIsActive(true);
+    updateNodeData?.(id, { isActive: true });
+  };
+
+  const handlePause = () => {
+    setIsActive(false);
+    updateNodeData?.(id, { isActive: false });
+  };
+
+  const handleReset = () => {
+    setRemainingTime(data.duration);
+    setIsActive(false);
+    updateNodeData?.(id, { 
+      isActive: false,
+      remainingTime: data.duration 
+    });
+  };
+
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDuration = parseInt(e.target.value);
+    if (!isNaN(newDuration) && newDuration > 0) {
+      updateNodeData?.(id, { 
+        duration: newDuration,
+        remainingTime: newDuration
+      });
+      setRemainingTime(newDuration);
+    }
+  };
+
+  const handleAlertToggle = () => {
+    const newAlertState = !isAlertEnabled;
+    setIsAlertEnabled(newAlertState);
+    updateNodeData?.(id, { isAlertEnabled: newAlertState });
+  };
+
+  const getStatusColor = () => {
+    if (remainingTime === 0) return "bg-red-100 text-red-700";
+    if (isActive) return "bg-green-100 text-green-700";
+    return "bg-gray-100 text-gray-700";
+  };
+
+  const getStatusText = () => {
+    if (remainingTime === 0) return "Timed Out";
+    if (isActive) return "Running";
+    return "Paused";
+  };
+
+  return (
+    <div
+      style={{border: `2px solid ${selected ? timeoutColor.from : "white"}`}}
+      className={`
+        bg-white
+        shadow-lg rounded-lg border-2
+        transition-all duration-300 ease-in-out
+        hover:shadow-xl transform hover:-translate-y-1
+        min-w-[300px]
+      `}
+    >
+      {/* Header */}
+      <div
+        className="text-white px-4 py-2 rounded-t-lg 
+                    flex items-center justify-between"
+        style={{
+          background: `linear-gradient(to right, ${timeoutColor.from}, ${timeoutColor.to})`
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <Timer className="w-5 h-5" />
+          <span className="font-semibold">Timeout</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleAlertToggle}
+            className={`p-1 rounded-full transition-colors ${
+              isAlertEnabled ? 'bg-white/20' : 'hover:bg-white/20'
+            }`}
+            title={isAlertEnabled ? "Disable Alert" : "Enable Alert"}
+          >
+            {isAlertEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="p-1 rounded-full hover:bg-white/20 transition-colors"
+            title="Advanced Settings"
+          >
+            {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="px-4 py-3">
+        <div className="space-y-4">
+          {/* Timer Display */}
+          <div className="flex flex-col items-center space-y-2">
+            <div className="text-4xl font-bold text-gray-800">
+              {formatTime(remainingTime)}
+            </div>
+            <div className="text-sm text-gray-500">
+              {formatTime(data.duration)} total duration
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className="h-2.5 rounded-full transition-all duration-300"
+              style={{
+                width: `${getProgressPercentage()}%`,
+                backgroundColor: remainingTime > data.duration * 0.3
+                  ? timeoutColor.from
+                  : remainingTime > data.duration * 0.1
+                  ? "#F59E0B"
+                  : "#EF4444"
+              }}
+            />
+          </div>
+
+          {/* Controls */}
+          <div className="flex justify-center gap-2">
+            {!isActive ? (
+              <button
+                onClick={handleStart}
+                className="p-2 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                title="Start Timer"
+              >
+                <Play className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={handlePause}
+                className="p-2 rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-colors"
+                title="Pause Timer"
+              >
+                <Pause className="w-5 h-5" />
+              </button>
+            )}
+            <button
+              onClick={handleReset}
+              className="p-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+              title="Reset Timer"
+            >
+              <RotateCcw className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Advanced Settings */}
+          {showAdvanced && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm text-gray-600">Duration (seconds):</label>
+                  <input
+                    type="number"
+                    value={data.duration}
+                    onChange={handleDurationChange}
+                    min="1"
+                    style={{border: `1px solid ${timeoutColor.from}`}}
+                    className="px-2 py-1 rounded-md text-sm w-24"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Status:</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}>
+                    {getStatusText()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Progress:</span>
+                  <span className="font-medium text-blue-600">
+                    {getProgressPercentage().toFixed(0)}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Alert:</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    isAlertEnabled ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
+                  }`}>
+                    {isAlertEnabled ? "Enabled" : "Disabled"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Connected Sensors */}
+          {sourceNodes.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                <AlertCircle className="w-4 h-4" />
+                <span>Connected Sensors</span>
+              </div>
+              <div className="space-y-2">
+                {sourceNodes.map((node) => (
+                  <div key={node?.id} className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">{node?.data?.label as string}</span>
+                    <span className="font-medium">{node?.data?.value as string}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Handles */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="react-flow__handle-target"
+        style={{ 
+          top: -4,
+          backgroundColor: timeoutColor.from
+        }}
+        isConnectable={isConnectable}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="react-flow__handle-source"
+        style={{ 
+          bottom: -4,
+          backgroundColor: timeoutColor.from
+        }}
+        isConnectable={isConnectable}
+      />
+    </div>
+  );
+};
+
+export default memo(TimeoutNode); 

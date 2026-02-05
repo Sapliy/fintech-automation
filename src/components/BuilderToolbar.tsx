@@ -10,7 +10,9 @@ import {
     Settings,
     CheckCircle2,
     AlertCircle,
-    Loader2
+    Loader2,
+    FolderOpen,
+    ChevronDown
 } from 'lucide-react';
 
 export default function BuilderToolbar() {
@@ -18,8 +20,12 @@ export default function BuilderToolbar() {
         currentFlowName,
         saveCurrentFlow,
         isSaving,
-        createNewFlow
+        createNewFlow,
+        savedFlows,
+        loadFlowConfig
     } = useFlowStore();
+
+    const [isFlowsOpen, setIsFlowsOpen] = useState(false);
 
     const { nodes, edges } = useStoreNode();
     const { zone } = useAuthStore();
@@ -48,6 +54,11 @@ export default function BuilderToolbar() {
         setName(newName);
         // We might want a separate action to update name in store without saving
         useFlowStore.setState({ currentFlowName: newName });
+    };
+
+    const handleLoadFlow = (id: string) => {
+        loadFlowConfig(id);
+        setIsFlowsOpen(false);
     };
 
     return (
@@ -89,6 +100,41 @@ export default function BuilderToolbar() {
                         Error Saving
                     </span>
                 )}
+
+                <div className="relative">
+                    <button
+                        onClick={() => setIsFlowsOpen(!isFlowsOpen)}
+                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors mr-2"
+                    >
+                        <FolderOpen className="w-4 h-4 mr-2" />
+                        Saved Flows
+                        <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+                    </button>
+
+                    {isFlowsOpen && (
+                        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-30 max-h-96 overflow-y-auto">
+                            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                Your Automation Flows
+                            </div>
+                            {savedFlows.length === 0 ? (
+                                <div className="px-4 py-3 text-sm text-gray-400 italic">
+                                    No flows found in this zone
+                                </div>
+                            ) : (
+                                savedFlows.map((flow) => (
+                                    <button
+                                        key={flow.id}
+                                        onClick={() => handleLoadFlow(flow.id)}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors flex flex-col"
+                                    >
+                                        <span className="font-medium">{flow.name}</span>
+                                        <span className="text-[10px] text-gray-400 mt-0.5">Updated {new Date(flow.updated_at).toLocaleDateString()}</span>
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    )}
+                </div>
 
                 <button
                     onClick={() => createNewFlow('Untitled Flow')}

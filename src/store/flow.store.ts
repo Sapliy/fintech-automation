@@ -218,15 +218,21 @@ const useFlowStore = create<FlowState>()(
                 if (isTemplate) {
                     data = get().internalTemplates.find(t => t.id === id);
                 } else {
-                    // In real app, we fetch from API/DB
-                    console.log('Would fetch flow', id);
-                    return;
+                    try {
+                        const baseUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:8080';
+                        const response = await fetch(`${baseUrl}/flows?id=${id}`);
+                        if (response.ok) {
+                            data = await response.json();
+                        }
+                    } catch (error) {
+                        console.error('Failed to load flow config:', error);
+                    }
                 }
 
                 if (data) {
                     const { setNodes, setEdges } = useStoreNode.getState();
-                    setNodes(data.nodes);
-                    setEdges(data.edges);
+                    setNodes(data.nodes || []);
+                    setEdges(data.edges || []);
                     set({
                         currentFlowId: isTemplate ? null : data.id,
                         currentFlowName: isTemplate ? `Copy of ${data.name}` : data.name

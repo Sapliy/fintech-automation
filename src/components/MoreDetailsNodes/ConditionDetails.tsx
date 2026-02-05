@@ -1,13 +1,12 @@
-import { NodeProps } from "@xyflow/react";
-import { AppNode, ConditionNode, Operations } from "../../nodes/types";
 import { ChangeEvent, FocusEvent, useEffect, useState } from "react";
+import { TConditionData, Operations, ValuesSensor } from "../../nodes/types";
 import { operations, operators } from "../../constant";
 import { ArrowLeftRight, Binary, Equal, Send } from "lucide-react";
 import { Operator } from "../../types";
 
 type TProps = {
-  data: Partial<AppNode> & NodeProps<ConditionNode>["data"];
-  handleUpdate: (data: Partial<NodeProps<ConditionNode>["data"]>) => void;
+  data: TConditionData<ValuesSensor>;
+  handleUpdate: (data: Partial<TConditionData<ValuesSensor>>) => void;
 };
 
 const convert_operations: Record<Operations, (value: any) => any> = {
@@ -27,8 +26,8 @@ const ConditionDetails = (props: TProps) => {
     firstCondition[operator as Operator]?.[1] ?? ""
   );
 
-  const [trueValue, setTrueValue] = useState(data.outputTruePath || "");
-  const [falseValue, setFalseValue] = useState(data.outputFalsePath || "");
+  const [trueValue, setTrueValue] = useState(String(data.outputTruePath || ""));
+  const [falseValue, setFalseValue] = useState(String(data.outputFalsePath || ""));
 
   const handleConvertOperation = (e: ChangeEvent<HTMLSelectElement>) => {
     const operation = e.target.value as Operations;
@@ -79,7 +78,7 @@ const ConditionDetails = (props: TProps) => {
 
       setPayload(value); // Set the initial threshold value
     }
-  }, [data.operator, firstCondition, operator]);
+  }, [firstCondition, operator]);
 
   return (
     <div className="space-y-6">
@@ -111,7 +110,7 @@ const ConditionDetails = (props: TProps) => {
         </div>
         <div className="relative">
           <input
-            type={convertOperation}
+            type={convertOperation === "number" ? "number" : "text"}
             defaultValue={payload}
             onBlur={handleChangePayload}
             className="w-full px-3 py-2 rounded-lg border border-gray-300
@@ -150,7 +149,7 @@ const ConditionDetails = (props: TProps) => {
           </span>
           <div className="font-mono text-sm">
             <span className="text-purple-600">if</span>
-            <span className="text-gray-600"> ({data.value}) </span>
+            <span className="text-gray-600"> ({data.value !== undefined ? String(data.value) : "value"}) </span>
             <span className="text-purple-600">{data.operator}</span>
             <span className="text-gray-600"> ({payload})</span>
           </div>

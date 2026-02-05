@@ -9,14 +9,14 @@ import {
 } from 'lucide-react';
 import { useShallow } from 'zustand/shallow';
 import { useStoreNode } from '../store';
-import { nodeColors } from '../utils/edgeStyles';
+
 import type { Node } from '@xyflow/react';
 
 // Approver roles that can approve
 export type ApproverRole = 'admin' | 'finance' | 'manager' | 'any';
 
 // Node data type
-export interface TApprovalNodeData {
+export interface TApprovalNodeData extends Record<string, unknown> {
     label: string;
     approverRole: ApproverRole;
     timeoutHours: number;

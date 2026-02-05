@@ -3,7 +3,7 @@ import { AppNode } from "../nodes/types";
 import { useStoreNode, AppStateNode } from "../store";
 import { useShallow } from "zustand/shallow";
 import { X, Settings2, ChevronRight } from "lucide-react";
-import ConditionDetails from "./MoreDetailsNodes/ ConditionDetails";
+import ConditionDetails from "./MoreDetailsNodes/ConditionDetails";
 import FilterDetails from "./MoreDetailsNodes/FilterDetails";
 import DebuggerDetails from "./MoreDetailsNodes/DebuggerDetails";
 import DateTimeDetails from "./MoreDetailsNodes/DateTimeDetails";

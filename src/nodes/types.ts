@@ -32,7 +32,7 @@ type Variable = {
   var: string;
 };
 
-interface NodeBase {
+export interface NodeBase {
   width?: number;
   height?: number;
   [key: string]: unknown;

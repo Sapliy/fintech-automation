@@ -1,5 +1,5 @@
 import { Handle, type NodeProps, Position } from '@xyflow/react';
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { Gauge, Activity } from 'lucide-react';
 import { useShallow } from 'zustand/shallow';
 import { useStoreNode } from '../store';
@@ -9,7 +9,7 @@ import type { Node } from '@xyflow/react';
 export type TimeUnit = 'second' | 'minute' | 'hour' | 'day';
 
 // Node data type
-export interface TRateLimitNodeData {
+export interface TRateLimitNodeData extends Record<string, unknown> {
     label: string;
     limit: number;
     timeWindow: number;
@@ -154,8 +154,8 @@ const RateLimitNode = ({
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
                             className={`h-full transition-all duration-300 ${usagePercent >= 100 ? 'bg-red-500' :
-                                    usagePercent >= 80 ? 'bg-yellow-500' :
-                                        'bg-green-500'
+                                usagePercent >= 80 ? 'bg-yellow-500' :
+                                    'bg-green-500'
                                 }`}
                             style={{ width: `${usagePercent}%` }}
                         />

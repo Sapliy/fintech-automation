@@ -31,6 +31,7 @@ const ConditionNode = ({
   // Get condition colors from our color system
   const conditionColor = nodeColors.condition;
 
+  /*
   // Update condition
   const handleOperatorChange = (newOperator: string) => {
     // ConditionNode data structure is complex: data.if[0][operator]
@@ -44,6 +45,7 @@ const ConditionNode = ({
     // Let's assume user wants to switch operator easiest way.
     // Using updateNodeData to update 'if'.
   };
+  */
 
   // Simplified: we will just update the data assuming a specific structure or refactor ConditionNode to use flatter data if acceptable?
   // Previous task.md said "Keep ConditionNode - rename to ConditionNode (no change needed)".

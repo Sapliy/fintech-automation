@@ -13,7 +13,7 @@ import type { Node } from '@xyflow/react';
 export type AuditSeverity = 'info' | 'warning' | 'error' | 'critical';
 
 // Node data type
-export interface TAuditLogNodeData {
+export interface TAuditLogNodeData extends Record<string, unknown> {
     label: string;
     action: string;
     severity: AuditSeverity;

@@ -1,11 +1,11 @@
 import { memo } from "react";
 import { Clock, Calendar, Sun, Moon, Repeat } from "lucide-react";
-import { type TDateTimeLabel } from "../../nodes/types";
+import { type TDateTimeData } from "../../nodes/types";
 import { nodeColors } from "../../utils/edgeStyles";
 
 interface DateTimeDetailsProps {
-  data: TDateTimeLabel;
-  handleUpdate: (updatedData: Partial<TDateTimeLabel>) => void;
+  data: TDateTimeData;
+  handleUpdate: (updatedData: Partial<TDateTimeData>) => void;
 }
 
 const DateTimeDetails = ({ data, handleUpdate }: DateTimeDetailsProps) => {
@@ -26,7 +26,7 @@ const DateTimeDetails = ({ data, handleUpdate }: DateTimeDetailsProps) => {
   const handleDayToggle = (dayIndex: number) => {
     const currentDays = data.activeDays ?? [];
     const newDays = currentDays.includes(dayIndex)
-      ? currentDays.filter(day => day !== dayIndex)
+      ? currentDays.filter((day: number) => day !== dayIndex)
       : [...currentDays, dayIndex].sort((a, b) => a - b);
     handleUpdate({ activeDays: newDays });
   };
@@ -36,7 +36,7 @@ const DateTimeDetails = ({ data, handleUpdate }: DateTimeDetailsProps) => {
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="p-2 bg-purple-100 rounded-lg">
-          <Calendar className="w-6 h-6" style={{color: dateTimeColor.from}} />
+          <Calendar className="w-6 h-6" style={{ color: dateTimeColor.from }} />
         </div>
         <div>
           <h3 className="text-lg font-semibold text-gray-800">DateTime Settings</h3>
@@ -80,9 +80,8 @@ const DateTimeDetails = ({ data, handleUpdate }: DateTimeDetailsProps) => {
           </div>
           <button
             onClick={handleRepeatToggle}
-            className={`p-2 rounded-full transition-colors ${
-              data.repeat ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
-            }`}
+            className={`p-2 rounded-full transition-colors ${data.repeat ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
+              }`}
           >
             <Repeat className="w-5 h-5" />
           </button>
@@ -110,11 +109,10 @@ const DateTimeDetails = ({ data, handleUpdate }: DateTimeDetailsProps) => {
             <button
               key={index}
               onClick={() => handleDayToggle(index)}
-              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm transition-colors ${
-                data.activeDays?.includes(index)
-                  ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                  : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-              }`}
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm transition-colors ${data.activeDays?.includes(index)
+                ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                }`}
             >
               {day}
             </button>
@@ -126,9 +124,8 @@ const DateTimeDetails = ({ data, handleUpdate }: DateTimeDetailsProps) => {
       <div className="pt-4 border-t border-gray-200">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-gray-700">Status</span>
-          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-            data.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
-          }`}>
+          <div className={`px-3 py-1 rounded-full text-xs font-medium ${data.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
+            }`}>
             {data.isActive ? "Active" : "Inactive"}
           </div>
         </div>

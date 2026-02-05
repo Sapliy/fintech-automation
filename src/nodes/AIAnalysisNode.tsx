@@ -9,7 +9,6 @@ import { nodeColors } from "../utils/edgeStyles";
 
 // Selector for accessing node store
 const selectorNode: SelectorNode = (state) => ({
-  getTargetNodes: state.getTargetNodes,
   updateNodeData: state.updateNodeData,
 });
 
@@ -20,31 +19,27 @@ const AIAnalysisNode = ({
   isConnectable,
 }: NodeProps<AIAnalysisNode>) => {
   const [instruction, setInstruction] = useState(data.instruction || "");
-  const [result, setResult] = useState(data.result || "No analysis results yet");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | undefined>(data.error);
+  const [result] = useState(data.result || "No analysis results yet");
   const [inputValue, setInputValue] = useState<any>(data.value || "Waiting for input...");
-  
-  const { getTargetNodes, updateNodeData } = useStoreNode(
+
+  const { updateNodeData } = useStoreNode(
     useShallow(selectorNode)
   );
 
   // Effect to receive data from the connected source node
   useEffect(() => {
-    if (data.sourceNode?.value !== undefined) {
-      setInputValue(data.sourceNode.value);
+    if (data.value !== undefined) {
+      setInputValue(data.value);
     }
-  }, [data.sourceNode]);
+  }, [data.value]);
 
   // Update data in store when our node data changes
   useEffect(() => {
     updateNodeData?.(id, {
       instruction,
       result,
-      isProcessing,
-      error,
     });
-  }, [instruction, result, isProcessing, error, id, updateNodeData]);
+  }, [instruction, result, id, updateNodeData]);
 
 
   // Get node colors from our color system
@@ -73,7 +68,7 @@ const AIAnalysisNode = ({
         className="react-flow__handle-target"
         isConnectable={isConnectable}
       />
-      
+
       {/* Header */}
       <div
         className="text-white px-4 py-2 rounded-t-lg 
@@ -98,7 +93,7 @@ const AIAnalysisNode = ({
           <div className="flex items-center text-sm text-gray-600">
             <span className="font-medium mr-2">Input Data:</span>
             <span className="font-mono text-xs bg-gray-200 px-2 py-0.5 rounded truncate max-w-[180px]">
-              {inputValue}
+              {String(inputValue)}
             </span>
           </div>
 
@@ -117,19 +112,19 @@ const AIAnalysisNode = ({
 
           {/* Run Analysis Button */}
           <button
-            disabled={isProcessing}
+            disabled={data.isProcessing}
             className={`
               w-full py-2 px-3 rounded-md
               text-white font-medium text-sm
               flex items-center justify-center gap-2
               transition-colors duration-200
-              ${isProcessing 
-                ? "bg-indigo-400 cursor-not-allowed" 
+              ${data.isProcessing
+                ? "bg-indigo-400 cursor-not-allowed"
                 : "bg-indigo-600 hover:bg-indigo-700"
               }
             `}
           >
-            {isProcessing ? (
+            {data.isProcessing ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Processing...
@@ -143,9 +138,9 @@ const AIAnalysisNode = ({
           </button>
 
           {/* Error Message */}
-          {error && (
+          {data.error && (
             <div className="text-red-500 text-xs mt-1 bg-red-50 p-2 rounded">
-              {error}
+              {data.error}
             </div>
           )}
 
@@ -175,4 +170,4 @@ const AIAnalysisNode = ({
   );
 };
 
-export default memo(AIAnalysisNode); 
+export default memo(AIAnalysisNode);

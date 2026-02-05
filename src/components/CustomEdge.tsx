@@ -6,11 +6,9 @@ import {
   Node,
   EdgeLabelRenderer,
 } from "@xyflow/react";
+import { memo, useMemo } from "react";
 import { getEdgeStyle, generateAllGradients } from "../utils/edgeStyles";
-import { useStoreNode } from "../store";
-import { useShallow } from "zustand/shallow";
-import { useCallback, useMemo, memo, useState } from "react";
-import type { NodeType } from "../utils/edgeStyles";
+import type { NodeTypes } from "../nodes/types";
 import EdgeMenu from "./EdgeMenu";
 
 
@@ -36,15 +34,13 @@ export function CustomEdge({
   });
 
   const style = useMemo(() => {
-    const sourceType = source.split("-")[0] as NodeType;
-    const targetType = target.split("-")[0] as NodeType;
+    const sourceType = source.split("-")[0] as NodeTypes;
+    const targetType = target.split("-")[0] as NodeTypes;
     const edgeStyle = getEdgeStyle(
-      sourceType, 
-      targetType, 
-      sourceX, 
-      sourceY, 
-      targetX, 
-      targetY
+      sourceType,
+      targetType,
+      sourceX,
+      targetX
     );
 
     return {
@@ -55,9 +51,9 @@ export function CustomEdge({
 
 
   // Generate all the possible gradient combinations for the defs section
-  const allGradients = useMemo(() => 
-    generateAllGradients(sourceX, sourceY, targetX, targetY), 
-    [sourceX, sourceY, targetX, targetY]
+  const allGradients = useMemo(() =>
+    generateAllGradients(),
+    []
   );
 
   return (

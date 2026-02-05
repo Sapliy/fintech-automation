@@ -1,10 +1,10 @@
 import { memo } from "react";
-import { Activity, AlertCircle, Search, Download, Trash2, ChevronDown, ChevronUp } from "lucide-react";
-import { type DebuggerNode } from "../../nodes/types";
+import { Activity, AlertCircle, Download, Trash2 } from "lucide-react";
+import { type TDebuggerData } from "../../nodes/types";
 
 interface DebuggerDetailsProps {
-  data: DebuggerNode;
-  handleUpdate: (updatedData: Partial<DebuggerNode>) => void;
+  data: TDebuggerData<any>;
+  handleUpdate: (updatedData: Partial<TDebuggerData<any>>) => void;
 }
 
 const DebuggerDetails = ({ data, handleUpdate }: DebuggerDetailsProps) => {
@@ -71,9 +71,8 @@ const DebuggerDetails = ({ data, handleUpdate }: DebuggerDetailsProps) => {
           </div>
           <button
             onClick={handleAutoScrollToggle}
-            className={`p-2 rounded-full transition-colors ${
-              data.autoScroll ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
-            }`}
+            className={`p-2 rounded-full transition-colors ${data.autoScroll ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
+              }`}
           >
             <Activity className="w-5 h-5" />
           </button>
@@ -85,14 +84,14 @@ const DebuggerDetails = ({ data, handleUpdate }: DebuggerDetailsProps) => {
         <div className="flex items-center justify-between mb-3">
           <h4 className="text-sm font-medium text-gray-700">Recent Logs</h4>
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={handleClearLogs}
               className="p-1 rounded-full hover:bg-gray-100 transition-colors"
               title="Clear Logs"
             >
               <Trash2 className="w-4 h-4 text-gray-500" />
             </button>
-            <button 
+            <button
               onClick={handleExportLogs}
               className="p-1 rounded-full hover:bg-gray-100 transition-colors"
               title="Export Logs"
@@ -105,11 +104,10 @@ const DebuggerDetails = ({ data, handleUpdate }: DebuggerDetailsProps) => {
           {data.logs?.slice(0, 5).map((log, index) => (
             <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-2">
-                <Activity className={`w-4 h-4 ${
-                  log.level === 'info' ? 'text-blue-500' :
-                  log.level === 'warning' ? 'text-yellow-500' :
-                  'text-red-500'
-                }`} />
+                <Activity className={`w-4 h-4 ${log.level === 'info' ? 'text-blue-500' :
+                    log.level === 'warning' ? 'text-yellow-500' :
+                      'text-red-500'
+                  }`} />
                 <span className="text-sm text-gray-600">{log.message}</span>
               </div>
               <span className="text-xs text-gray-400">{log.timestamp}</span>
@@ -122,9 +120,8 @@ const DebuggerDetails = ({ data, handleUpdate }: DebuggerDetailsProps) => {
       <div className="pt-4 border-t border-gray-200">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-gray-700">Status</span>
-          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-            data.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
-          }`}>
+          <div className={`px-3 py-1 rounded-full text-xs font-medium ${data.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
+            }`}>
             {data.isActive ? "Active" : "Inactive"}
           </div>
         </div>
@@ -133,4 +130,4 @@ const DebuggerDetails = ({ data, handleUpdate }: DebuggerDetailsProps) => {
   );
 };
 
-export default memo(DebuggerDetails); 
+export default memo(DebuggerDetails);

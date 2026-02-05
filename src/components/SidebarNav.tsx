@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Zap, LayoutDashboard, Database, Activity, Settings, Package, Code, FileText, GitGraph } from 'lucide-react';
+import { Zap, LayoutDashboard, Database, Activity, Settings, Package, GitGraph } from 'lucide-react';
 import ZoneSelector from './ZoneSelector';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter, usePathname } from 'next/navigation';

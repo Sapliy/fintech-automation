@@ -30,9 +30,7 @@ export const getGradientId = (
   sourceType: NodeTypes,
   targetType: NodeTypes,
   sourceX: number,
-  sourceY: number,
-  targetX: number,
-  targetY: number
+  targetX: number
 ): string => {
   const isLeftToRight = sourceX <= targetX;
   return `${sourceType}-to-${targetType}-gradient-${isLeftToRight ? 'ltr' : 'rtl'}`;
@@ -42,11 +40,9 @@ export const getEdgeStyle = (
   sourceType: NodeTypes,
   targetType: NodeTypes,
   sourceX: number,
-  sourceY: number,
-  targetX: number,
-  targetY: number
+  targetX: number
 ): CSSProperties => {
-  const gradientId = getGradientId(sourceType, targetType, sourceX, sourceY, targetX, targetY);
+  const gradientId = getGradientId(sourceType, targetType, sourceX, targetX);
 
   return {
     stroke: `url(#${gradientId})`,
@@ -74,7 +70,7 @@ export const generateAllGradients = (): React.ReactElement[] => {
   allNodeTypes.forEach(sourceType => {
     allNodeTypes.forEach(targetType => {
       // Create LTR (left-to-right) gradient
-      const ltrId = getGradientId(sourceType, targetType, 0, 0, 100, 0);
+      const ltrId = getGradientId(sourceType, targetType, 0, 100);
       const sourceColor = nodeColors[sourceType];
       const targetColor = nodeColors[targetType];
 
@@ -96,7 +92,7 @@ export const generateAllGradients = (): React.ReactElement[] => {
       );
 
       // Create RTL (right-to-left) gradient
-      const rtlId = getGradientId(sourceType, targetType, 100, 0, 0, 0);
+      const rtlId = getGradientId(sourceType, targetType, 100, 0);
 
       gradients.push(
         React.createElement(

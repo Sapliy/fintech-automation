@@ -8,14 +8,13 @@ import {
 } from 'lucide-react';
 import { useShallow } from 'zustand/shallow';
 import { useStoreNode } from '../store';
-import { nodeColors } from '../utils/edgeStyles';
 import type { Node } from '@xyflow/react';
 
 // HTTP Methods
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 // Node data type
-export interface TWebhookNodeData {
+export interface TWebhookNodeData extends Record<string, unknown> {
     label: string;
     url: string;
     method: HttpMethod;

@@ -12,7 +12,6 @@ import { useStoreNode } from '../store';
 import { nodeColors } from '../utils/edgeStyles';
 import {
     NotificationChannel,
-    TNotificationData,
     NotificationNode as TNotificationNode
 } from './types';
 

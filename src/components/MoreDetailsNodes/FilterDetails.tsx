@@ -1,13 +1,12 @@
-  import { NodeProps } from "@xyflow/react";
-import { AppNode, FilterNode } from "../../nodes/types";
 import { ChangeEvent, FocusEvent, useEffect, useState } from "react";
+import { type TFilterData } from "../../nodes/types";
 import { operators } from "../../constant";
 import { ArrowLeftRight, Binary, Equal, Tag, Gauge } from "lucide-react";
 import { Operator } from "../../types";
 
 type TProps = {
-  data: Partial<AppNode> & NodeProps<FilterNode>["data"];
-  handleUpdate: (data: Partial<NodeProps<FilterNode>["data"]>) => void;
+  data: TFilterData;
+  handleUpdate: (data: Partial<TFilterData>) => void;
 };
 
 const FilterDetails = (props: TProps) => {
@@ -25,7 +24,7 @@ const FilterDetails = (props: TProps) => {
   const handleValueTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newValueType = e.target.value as "number" | "text";
     setValueType(newValueType);
-    
+
     // Convert the filter value to the appropriate type
     let newFilterValue: string | number = filterValue;
     if (newValueType === "number") {
@@ -33,7 +32,7 @@ const FilterDetails = (props: TProps) => {
     } else {
       newFilterValue = String(filterValue);
     }
-    
+
     handleUpdate({
       valueType: newValueType,
       filterValue: newFilterValue
@@ -42,11 +41,11 @@ const FilterDetails = (props: TProps) => {
 
   const handleFilterValueChange = (e: FocusEvent<HTMLInputElement>) => {
     let newValue: string | number = e.target.value;
-    
+
     if (valueType === "number") {
       newValue = Number(newValue);
     }
-    
+
     setFilterValue(newValue);
     handleUpdate({ filterValue: newValue });
   };
@@ -93,14 +92,13 @@ const FilterDetails = (props: TProps) => {
           <span
             className={`
             px-3 py-1 rounded-full text-sm font-medium
-            ${
-              data.value
+            ${data.value
                 ? "bg-indigo-100 text-indigo-700"
                 : "bg-gray-100 text-gray-600"
-            }
+              }
           `}
           >
-            {data.value !== undefined ? data.value : "Waiting for input"}
+            {data.value !== undefined ? String(data.value) : "Waiting for input"}
           </span>
         </div>
       </div>
@@ -189,4 +187,4 @@ const FilterDetails = (props: TProps) => {
   );
 };
 
-export default FilterDetails; 
+export default FilterDetails;

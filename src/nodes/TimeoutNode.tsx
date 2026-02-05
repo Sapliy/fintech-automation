@@ -1,5 +1,5 @@
 import { Handle, type NodeProps, Position } from "@xyflow/react";
-import { Timer, Play, Pause, RotateCcw, AlertCircle, ChevronDown, ChevronUp, Clock, Bell, BellOff } from "lucide-react";
+import { Timer, Play, Pause, RotateCcw, AlertCircle, ChevronDown, ChevronUp, Bell, BellOff } from "lucide-react";
 import { useState, useEffect, memo } from "react";
 import { nodeColors } from "../utils/edgeStyles";
 import { type TimeoutNode } from "./types";
@@ -25,7 +25,7 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
     let timer: NodeJS.Timeout;
     if (isActive && remainingTime > 0) {
       timer = setInterval(() => {
-        setRemainingTime((prev) => {
+        setRemainingTime((prev: number) => {
           if (prev <= 1) {
             data.onTimeout?.();
             if (isAlertEnabled) {
@@ -46,7 +46,7 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
@@ -71,16 +71,16 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
   const handleReset = () => {
     setRemainingTime(data.duration);
     setIsActive(false);
-    updateNodeData?.(id, { 
+    updateNodeData?.(id, {
       isActive: false,
-      remainingTime: data.duration 
+      remainingTime: data.duration
     });
   };
 
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDuration = parseInt(e.target.value);
     if (!isNaN(newDuration) && newDuration > 0) {
-      updateNodeData?.(id, { 
+      updateNodeData?.(id, {
         duration: newDuration,
         remainingTime: newDuration
       });
@@ -108,7 +108,7 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
 
   return (
     <div
-      style={{border: `2px solid ${selected ? timeoutColor.from : "white"}`}}
+      style={{ border: `2px solid ${selected ? timeoutColor.from : "white"}` }}
       className={`
         bg-white
         shadow-lg rounded-lg border-2
@@ -132,9 +132,8 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
         <div className="flex items-center gap-2">
           <button
             onClick={handleAlertToggle}
-            className={`p-1 rounded-full transition-colors ${
-              isAlertEnabled ? 'bg-white/20' : 'hover:bg-white/20'
-            }`}
+            className={`p-1 rounded-full transition-colors ${isAlertEnabled ? 'bg-white/20' : 'hover:bg-white/20'
+              }`}
             title={isAlertEnabled ? "Disable Alert" : "Enable Alert"}
           >
             {isAlertEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
@@ -171,8 +170,8 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
                 backgroundColor: remainingTime > data.duration * 0.3
                   ? timeoutColor.from
                   : remainingTime > data.duration * 0.1
-                  ? "#F59E0B"
-                  : "#EF4444"
+                    ? "#F59E0B"
+                    : "#EF4444"
               }}
             />
           </div>
@@ -216,7 +215,7 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
                     value={data.duration}
                     onChange={handleDurationChange}
                     min="1"
-                    style={{border: `1px solid ${timeoutColor.from}`}}
+                    style={{ border: `1px solid ${timeoutColor.from}` }}
                     className="px-2 py-1 rounded-md text-sm w-24"
                   />
                 </div>
@@ -234,9 +233,8 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Alert:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    isAlertEnabled ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
-                  }`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${isAlertEnabled ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
+                    }`}>
                     {isAlertEnabled ? "Enabled" : "Disabled"}
                   </span>
                 </div>
@@ -269,7 +267,7 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
         type="target"
         position={Position.Top}
         className="react-flow__handle-target"
-        style={{ 
+        style={{
           top: -4,
           backgroundColor: timeoutColor.from
         }}
@@ -279,7 +277,7 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
         type="source"
         position={Position.Bottom}
         className="react-flow__handle-source"
-        style={{ 
+        style={{
           bottom: -4,
           backgroundColor: timeoutColor.from
         }}

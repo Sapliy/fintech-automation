@@ -16,7 +16,7 @@ const VoiceAssistant = () => {
     recognition.interimResults = false;
     recognition.continuous = false;
 
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setText(transcript);
       handleSubmit(transcript); // send to backend
@@ -26,10 +26,10 @@ const VoiceAssistant = () => {
   }, []);
 
   const startListening = () => {
-    recognitionRef.current.start();
+    (recognitionRef.current as any)?.start();
   };
 
-  const handleSubmit = async (voiceText:string) => {
+  const handleSubmit = async (voiceText: string) => {
     try {
       const res = await fetch('http://localhost:3000/ai/command', {
         method: 'POST',
@@ -38,13 +38,13 @@ const VoiceAssistant = () => {
       });
 
       const data = await res.json();
-      speakText(data.response); 
+      speakText(data.response);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const speakText = (text:string) => {
+  const speakText = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US';
     window.speechSynthesis.speak(utterance);

@@ -1,5 +1,5 @@
 import { Handle, type NodeProps, Position } from "@xyflow/react";
-import { Clock, Calendar, Bell, BellOff, CheckCircle2, XCircle, Repeat, ChevronDown, ChevronUp, Sun, Moon } from "lucide-react";
+import { Clock, Bell, BellOff, CheckCircle2, Repeat, ChevronDown, ChevronUp, Sun, Moon } from "lucide-react";
 import { useState, useEffect, memo } from "react";
 import { nodeColors } from "../utils/edgeStyles";
 import { type DateTimeNode } from "./types";
@@ -25,11 +25,11 @@ const DateTimeNode = ({ data, selected, id, isConnectable }: NodeProps<DateTimeN
     const timer = setInterval(() => {
       const now = new Date();
       setCurrentTime(now);
-      
+
       if (isActive && data.time) {
         const [hours, minutes] = data.time.split(':').map(Number);
         const isTimeMatch = now.getHours() === hours && now.getMinutes() === minutes;
-        
+
         if (isTimeMatch && !isTriggered) {
           setIsTriggered(true);
           data?.onTrigger?.();
@@ -79,22 +79,22 @@ const DateTimeNode = ({ data, selected, id, isConnectable }: NodeProps<DateTimeN
 
   const handleDayToggle = (day: number) => {
     const newDays = data.activeDays?.includes(day)
-      ? data.activeDays.filter(d => d !== day)
+      ? data.activeDays.filter((d: number) => d !== day)
       : [...(data.activeDays || []), day];
     updateNodeData?.(id, { data: { ...data, activeDays: newDays } });
   };
 
   const getNextTriggerTime = () => {
     if (!data.time || !isActive) return "Not scheduled";
-    
+
     const [hours, minutes] = data.time.split(':').map(Number);
     const nextTrigger = new Date();
     nextTrigger.setHours(hours, minutes, 0, 0);
-    
+
     if (nextTrigger < currentTime) {
       nextTrigger.setDate(nextTrigger.getDate() + 1);
     }
-    
+
     return formatTime(nextTrigger);
   };
 
@@ -105,7 +105,7 @@ const DateTimeNode = ({ data, selected, id, isConnectable }: NodeProps<DateTimeN
 
   return (
     <div
-      style={{border: `2px solid ${selected ? dateTimeColor.from : "white"}`}}
+      style={{ border: `2px solid ${selected ? dateTimeColor.from : "white"}` }}
       className={`
         bg-white
         shadow-lg rounded-lg border-2
@@ -199,9 +199,8 @@ const DateTimeNode = ({ data, selected, id, isConnectable }: NodeProps<DateTimeN
               <span className="text-sm text-gray-600">Repeat:</span>
               <button
                 onClick={handleRepeatToggle}
-                className={`p-1 rounded-full transition-colors ${
-                  data.repeat ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
-                }`}
+                className={`p-1 rounded-full transition-colors ${data.repeat ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
+                  }`}
               >
                 <Repeat className="w-4 h-4" />
               </button>
@@ -221,7 +220,7 @@ const DateTimeNode = ({ data, selected, id, isConnectable }: NodeProps<DateTimeN
                   <span className={`px-2 py-1 rounded-full text-xs font-medium
                     ${isTriggered ? "bg-green-100 text-green-700" :
                       isActive ? "bg-blue-100 text-blue-700" :
-                      "bg-gray-100 text-gray-700"}`}>
+                        "bg-gray-100 text-gray-700"}`}>
                     {isTriggered ? "Triggered" :
                       isActive ? "Active" : "Inactive"}
                   </span>
@@ -234,11 +233,10 @@ const DateTimeNode = ({ data, selected, id, isConnectable }: NodeProps<DateTimeN
                         <button
                           key={day}
                           onClick={() => handleDayToggle(index)}
-                          className={`text-center text-xs py-1 rounded transition-colors ${
-                            data.activeDays?.includes(index)
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                          }`}
+                          className={`text-center text-xs py-1 rounded transition-colors ${data.activeDays?.includes(index)
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                            }`}
                         >
                           {day}
                         </button>
@@ -275,7 +273,7 @@ const DateTimeNode = ({ data, selected, id, isConnectable }: NodeProps<DateTimeN
         type="target"
         position={Position.Top}
         className="react-flow__handle-target"
-        style={{ 
+        style={{
           top: -4,
           backgroundColor: dateTimeColor.from
         }}
@@ -285,7 +283,7 @@ const DateTimeNode = ({ data, selected, id, isConnectable }: NodeProps<DateTimeN
         type="source"
         position={Position.Bottom}
         className="react-flow__handle-source"
-        style={{ 
+        style={{
           bottom: -4,
           backgroundColor: dateTimeColor.from
         }}

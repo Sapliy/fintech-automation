@@ -12,13 +12,12 @@ import {
   Download,
   Search,
 } from "lucide-react";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useStoreNode } from "../store";
 import { useShallow } from "zustand/shallow";
 import { SelectorNode } from "../store/type";
 import { nodeColors } from "../utils/edgeStyles";
 import { type DebuggerNode } from "./types";
-import { p } from "framer-motion/client";
 
 const selectorNode: SelectorNode = (state) => ({
   getSourceNodes: state.getSourceNodes,

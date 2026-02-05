@@ -169,8 +169,9 @@ const useFlowStore = create<FlowState>()(
                 const { organization, zone } = useAuthStore.getState();
 
                 if (!zone || !organization) {
+                    console.error('Missing zone or organization');
                     set({ isSaving: false });
-                    return;
+                    throw new Error('Missing zone or organization');
                 }
 
                 const flowData = {
@@ -184,23 +185,30 @@ const useFlowStore = create<FlowState>()(
                 };
 
                 try {
+                    const baseUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:8080';
                     const method = currentFlowId ? 'PUT' : 'POST';
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_URL}/flows`, {
+                    const response = await fetch(`${baseUrl}/flows`, {
                         method,
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(flowData)
                     });
 
-                    if (response.ok) {
-                        set({
-                            currentFlowId: flowData.id,
-                            isSaving: false
-                        });
-                        await get().loadFlows();
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'Failed to save flow');
                     }
+
+                    const savedFlow = await response.json();
+
+                    set({
+                        currentFlowId: savedFlow.id || flowData.id,
+                        isSaving: false
+                    });
+                    await get().loadFlows();
                 } catch (error) {
                     console.error('Failed to save flow:', error);
                     set({ isSaving: false });
+                    throw error;
                 }
             },
 

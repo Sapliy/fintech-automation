@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useEffect } from "react";
 import {
     ReactFlow,
     Background,
@@ -35,6 +35,9 @@ import "@xyflow/react/dist/style.css";
 
 import "../styles/global-handles.css";
 import Toaster from "../components/Toaster";
+
+import BuilderToolbar from "../components/BuilderToolbar";
+import { useFlowStore } from "../store/flow.store";
 
 const edgeTypes = {
     custom: CustomEdge,
@@ -87,11 +90,19 @@ export default function FlowBuilderPage() {
         nodeDetails,
     } = useStoreNode(useShallow(selectorNode));
 
+    const { loadFlows, loadTemplates } = useFlowStore();
+
+    // Load initial data
+    useEffect(() => {
+        loadFlows();
+        loadTemplates();
+    }, [loadFlows, loadTemplates]);
+
     const onNodeContextMenuCallback = useCallback(
         (event: React.MouseEvent, node: Node) => {
             onNodeContextMenu(event, node, ref);
         },
-        [setContextMenu]
+        [onNodeContextMenu]
     );
 
     const onPaneClick = useCallback(() => setContextMenu(null), [setContextMenu]);
@@ -121,51 +132,58 @@ export default function FlowBuilderPage() {
     useWebSocket(WS_URL, handleWebSocketMessage);
 
     return (
-        <div ref={ref} className="w-full h-full relative">
+        <div ref={ref} className="w-full h-full flex flex-col relative overflow-hidden bg-gray-50">
             <Toaster position="top-right" />
-            {/* Left Sidebar */}
-            <div className="absolute left-0 z-10 w-fit h-full">
-                <LeftSideDragNodes onDragStart={onDragStart} />
+
+            {/* Header Toolbar */}
+            <BuilderToolbar />
+
+            <div className="flex-1 relative overflow-hidden">
+                {/* Left Sidebar */}
+                <div className="absolute left-0 z-10 w-fit h-full">
+                    <LeftSideDragNodes onDragStart={onDragStart} />
+                </div>
+
+                {/* Main Canvas */}
+                <div className="w-full h-full">
+                    <ReactFlow
+                        nodes={nodes}
+                        nodeTypes={nodeTypes}
+                        onNodesChange={onNodesChange}
+                        edges={edges}
+                        edgeTypes={edgeTypes}
+                        onEdgesChange={onEdgesChange}
+                        onConnect={onConnect}
+                        onPaneClick={onPaneClick}
+                        onNodeContextMenu={onNodeContextMenuCallback}
+                        onDrop={(e) => onDrop(e, ref)}
+                        onDragOver={onDragOver}
+                        defaultEdgeOptions={{
+                            type: "custom",
+                            animated: true,
+                        }}
+                        fitView
+                    >
+                        <Background variant={BackgroundVariant.Lines} />
+                        <MiniMap />
+                        <Controls />
+                    </ReactFlow>
+                </div>
+
+                {/* Context Menu */}
+                {contextMenu && (
+                    <ContextMenu
+                        onMoreDetails={onMoreDetails}
+                        onDelete={deleteNode}
+                        onDuplicate={duplicateNode}
+                        onClose={onPaneClick}
+                        {...contextMenu}
+                    />
+                )}
+
+                {/* Right Sidebar */}
+                {nodeDetails && <RightSideMoreDetails {...nodeDetails} />}
             </div>
-
-            {/* Main Canvas */}
-            <ReactFlow
-                ref={ref}
-                nodes={nodes}
-                nodeTypes={nodeTypes}
-                onNodesChange={onNodesChange}
-                edges={edges}
-                edgeTypes={edgeTypes}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onPaneClick={onPaneClick}
-                onNodeContextMenu={onNodeContextMenuCallback}
-                onDrop={(e) => onDrop(e, ref)}
-                onDragOver={onDragOver}
-                defaultEdgeOptions={{
-                    type: "custom",
-                    animated: true,
-                }}
-                fitView
-            >
-                <Background variant={BackgroundVariant.Lines} />
-                <MiniMap />
-                <Controls />
-            </ReactFlow>
-
-            {/* Context Menu */}
-            {contextMenu && (
-                <ContextMenu
-                    onMoreDetails={onMoreDetails}
-                    onDelete={deleteNode}
-                    onDuplicate={duplicateNode}
-                    onClose={onPaneClick}
-                    {...contextMenu}
-                />
-            )}
-
-            {/* Right Sidebar */}
-            {nodeDetails && <RightSideMoreDetails {...nodeDetails} />}
 
             {/* Dialog */}
             {dialog && (

@@ -5,6 +5,8 @@ import { Activity, Clock, CreditCard, Wallet, FileText, Settings, RefreshCw } fr
 import useEventStream from '../../hooks/useEventStream';
 import { EventSource } from '../../types/events';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuthStore } from '@/store/auth.store';
+import useToaster from '@/store/toaster.store';
 
 const EventIcon = ({ source }: { source: EventSource }) => {
     switch (source) {
@@ -23,6 +25,47 @@ export default function EventTimelinePage() {
     });
 
     const scrollRef = useRef<HTMLDivElement>(null);
+    const { zone } = useAuthStore();
+    const { addToast } = useToaster();
+
+    const handleReplay = async (event: any) => {
+        if (!zone) return;
+
+        try {
+            const flowServiceUrl = process.env.NEXT_PUBLIC_FLOW_SERVICE_URL || 'http://localhost:8084';
+            const response = await fetch(`${flowServiceUrl}/api/v1/events/${event.id}/replay`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ zoneId: zone.id }),
+            });
+
+            if (response.ok) {
+                addToast({
+                    title: 'Success',
+                    description: 'Event replayed successfully',
+                    status: 'success',
+                    position: 'top-right'
+                });
+            } else {
+                addToast({
+                    title: 'Error',
+                    description: 'Failed to replay event',
+                    status: 'error',
+                    position: 'top-right'
+                });
+            }
+        } catch (error) {
+            addToast({
+                title: 'Error',
+                description: 'Error replaying event',
+                status: 'error',
+                position: 'top-right'
+            });
+            console.error('Error replaying event:', error);
+        }
+    };
 
     // Auto-scroll to top when new events arrive
     useEffect(() => {
@@ -105,9 +148,19 @@ export default function EventTimelinePage() {
                                                         ID: {event.id}
                                                     </p>
                                                 </div>
-                                                <div className="flex items-center gap-1 text-xs text-gray-400">
-                                                    <Clock className="w-3 h-3" />
-                                                    {new Date(event.timestamp).toLocaleTimeString()}
+                                                <div className="flex flex-col items-end gap-2">
+                                                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                                                        <Clock className="w-3 h-3" />
+                                                        {new Date(event.timestamp).toLocaleTimeString()}
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleReplay(event)}
+                                                        className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-xs font-medium"
+                                                        title="Replay this event"
+                                                    >
+                                                        <RefreshCw className="w-3 h-3" />
+                                                        Replay
+                                                    </button>
                                                 </div>
                                             </div>
 

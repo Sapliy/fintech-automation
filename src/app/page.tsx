@@ -1,203 +1,102 @@
 'use client';
 
-import { useCallback, useRef, useEffect } from "react";
-import {
-    ReactFlow,
-    Background,
-    Controls,
-    MiniMap,
-    type Node,
-    BackgroundVariant,
-    Edge,
-} from "@xyflow/react";
+import { Activity, ArrowUpRight, ArrowDownLeft, CreditCard, DollarSign, Users, Zap } from 'lucide-react';
+import Link from 'next/link';
 
-import Dialog from "../components/UI/Dialog";
-import ContextMenu from "../components/ContextMenu";
-import { CustomEdge } from "../components/CustomEdge";
-import LeftSideDragNodes from "../components/LeftSideDragNodes";
-import RightSideMoreDetails from "../components/RightSideMoreDetails";
+const STATS = [
+    { label: 'Total Volume', value: '$2.4M', change: '+12.5%', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { label: 'Active Flows', value: '14', change: '+2', icon: Zap, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { label: 'Transactions', value: '1,234', change: '+5.2%', icon: CreditCard, color: 'text-purple-600', bg: 'bg-purple-100' },
+    { label: 'Active Events', value: '892', change: '+24%', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-100' },
+];
 
-import {
-    useStoreNode,
-    AppStateNode,
-    AppStateDialog,
-    useStoreDialog,
-} from "../store";
-import { useShallow } from "zustand/shallow";
+const RECENT_ACTIVITY = [
+    { id: 1, type: 'payment', message: 'Payment of $500.00 succeeded', time: '2 mins ago', icon: ArrowDownLeft, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { id: 2, type: 'flow', message: 'Fraud Check process completed', time: '5 mins ago', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-50' },
+    { id: 3, type: 'payout', message: 'Payout of $2,500.00 initiated', time: '1 hour ago', icon: ArrowUpRight, color: 'text-gray-500', bg: 'bg-gray-50' },
+    { id: 4, type: 'system', message: 'Daily reconciliation started', time: '4 hours ago', icon: Activity, color: 'text-orange-500', bg: 'bg-orange-50' },
+];
 
-import { nodeTypes } from "../nodes";
-import { AppNode } from "../nodes/types";
-
-import useWebSocket from "../hooks/useWebSocket";
-
-import "../styles/edges.css";
-import "@xyflow/react/dist/style.css";
-
-import "../styles/global-handles.css";
-import Toaster from "../components/Toaster";
-
-import BuilderToolbar from "../components/BuilderToolbar";
-import { useFlowStore } from "../store/flow.store";
-
-const edgeTypes = {
-    custom: CustomEdge,
-};
-
-const selectorDialog = (state: AppStateDialog) => ({
-    dialog: state.dialog,
-    setDialog: state.setDialog,
-});
-
-const selectorNode = (state: AppStateNode) => ({
-    nodes: state.nodes,
-    edges: state.edges,
-    onMoreDetails: state.onMoreDetails,
-    nodeDetails: state.nodeDetails,
-    onNodesChange: state.onNodesChange,
-    onEdgesChange: state.onEdgesChange,
-    onConnect: state.onConnect,
-    setEdges: state.setEdges,
-    setNodes: state.setNodes,
-    deleteNode: state.deleteNode,
-    duplicateNode: state.duplicateNode,
-    onNodeContextMenu: state.onNodeContextMenu,
-    onDrop: state.onDrop,
-    setContextMenu: state.setContextMenu,
-    contextMenu: state.contextMenu,
-    closeMoreDetails: state.closeMoreDetails,
-});
-
-export default function FlowBuilderPage() {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const { dialog, setDialog } = useStoreDialog(useShallow(selectorDialog));
-
-    const {
-        nodes,
-        edges,
-        setNodes,
-        setEdges,
-        onNodesChange,
-        onEdgesChange,
-        onConnect,
-        deleteNode,
-        duplicateNode,
-        onDrop,
-        onNodeContextMenu,
-        contextMenu,
-        setContextMenu,
-        onMoreDetails,
-        nodeDetails,
-    } = useStoreNode(useShallow(selectorNode));
-
-    const { loadFlows, loadTemplates } = useFlowStore();
-
-    // Load initial data
-    useEffect(() => {
-        loadFlows();
-        loadTemplates();
-    }, [loadFlows, loadTemplates]);
-
-    const onNodeContextMenuCallback = useCallback(
-        (event: React.MouseEvent, node: Node) => {
-            onNodeContextMenu(event, node, ref);
-        },
-        [onNodeContextMenu]
-    );
-
-    const onPaneClick = useCallback(() => setContextMenu(null), [setContextMenu]);
-
-    const onDragStart = (event: React.DragEvent, nodeType: string) => {
-        event.dataTransfer.setData("application/fintech-automation", nodeType);
-        event.dataTransfer.effectAllowed = "move";
-    };
-
-    const onDragOver = (event: React.DragEvent) => {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "move";
-    };
-
-    const handleWebSocketMessage = (data: {
-        nodes: AppNode[];
-        edges: Edge[];
-    }) => {
-        if (data.nodes?.length > 0 && data.edges?.length > 0) {
-            setNodes(data.nodes);
-            setEdges(data.edges);
-        }
-    };
-
-    // Note: process.env.NEXT_PUBLIC_WS_URL allows exposing env vars to client
-    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/events/stream';
-    useWebSocket(WS_URL, handleWebSocketMessage);
-
+export default function DashboardPage() {
     return (
-        <div ref={ref} className="w-full h-full flex flex-col relative overflow-hidden bg-gray-50">
-            <Toaster position="top-right" />
-
-            {/* Header Toolbar */}
-            <BuilderToolbar />
-
-            <div className="flex-1 relative overflow-hidden">
-                {/* Left Sidebar */}
-                <div className="absolute left-0 z-10 w-fit h-full">
-                    <LeftSideDragNodes onDragStart={onDragStart} />
-                </div>
-
-                {/* Main Canvas */}
-                <div className="w-full h-full">
-                    <ReactFlow
-                        nodes={nodes}
-                        nodeTypes={nodeTypes}
-                        onNodesChange={onNodesChange}
-                        edges={edges}
-                        edgeTypes={edgeTypes}
-                        onEdgesChange={onEdgesChange}
-                        onConnect={onConnect}
-                        onPaneClick={onPaneClick}
-                        onNodeContextMenu={onNodeContextMenuCallback}
-                        onDrop={(e) => onDrop(e, ref)}
-                        onDragOver={onDragOver}
-                        defaultEdgeOptions={{
-                            type: "custom",
-                            animated: true,
-                        }}
-                        fitView
-                    >
-                        <Background variant={BackgroundVariant.Lines} />
-                        <MiniMap />
-                        <Controls />
-                    </ReactFlow>
-                </div>
-
-                {/* Context Menu */}
-                {contextMenu && (
-                    <ContextMenu
-                        onMoreDetails={onMoreDetails}
-                        onDelete={deleteNode}
-                        onDuplicate={duplicateNode}
-                        onClose={onPaneClick}
-                        {...contextMenu}
-                    />
-                )}
-
-                {/* Right Sidebar */}
-                {nodeDetails && <RightSideMoreDetails {...nodeDetails} />}
+        <div className="flex flex-col h-full w-full bg-gray-50 overflow-y-auto">
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 px-8 py-6">
+                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+                <p className="text-sm text-gray-500">Overview of your automation ecosystem</p>
             </div>
 
-            {/* Dialog */}
-            {dialog && (
-                <Dialog
-                    isOpen={true}
-                    title={dialog.title}
-                    message={dialog.message}
-                    onConfirm={() => {
-                        dialog.onConfirm();
-                        setDialog(null);
-                    }}
-                    onCancel={() => setDialog(null)}
-                />
-            )}
+            <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {STATS.map((stat) => (
+                        <div key={stat.label} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className={`p-3 rounded-lg ${stat.bg} ${stat.color}`}>
+                                    <stat.icon className="w-6 h-6" />
+                                </div>
+                                <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+                                    {stat.change}
+                                </span>
+                            </div>
+                            <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
+                            <p className="text-sm text-gray-500">{stat.label}</p>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Recent Activity */}
+                    <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                            <h2 className="font-semibold text-gray-900">Recent Activity</h2>
+                            <Link href="/timeline" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                View all
+                            </Link>
+                        </div>
+                        <div className="p-6 space-y-6">
+                            {RECENT_ACTIVITY.map((activity) => (
+                                <div key={activity.id} className="flex items-start gap-4">
+                                    <div className={`p-2 rounded-full ${activity.bg} ${activity.color} mt-1`}>
+                                        <activity.icon className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+                                        <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden h-fit">
+                        <div className="px-6 py-4 border-b border-gray-100">
+                            <h2 className="font-semibold text-gray-900">Quick Actions</h2>
+                        </div>
+                        <div className="p-4 space-y-2">
+                            <Link href="/builder" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors group">
+                                <div className="p-2 bg-blue-100 text-blue-600 rounded-md group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                    <Zap className="w-4 h-4" />
+                                </div>
+                                <span className="font-medium text-sm">Create New Flow</span>
+                            </Link>
+                            <Link href="/templates" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors group">
+                                <div className="p-2 bg-purple-100 text-purple-600 rounded-md group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                    <ArrowUpRight className="w-4 h-4" />
+                                </div>
+                                <span className="font-medium text-sm">Browse Templates</span>
+                            </Link>
+                            <Link href="/settings/zones" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors group">
+                                <div className="p-2 bg-gray-100 text-gray-600 rounded-md group-hover:bg-gray-600 group-hover:text-white transition-colors">
+                                    <Users className="w-4 h-4" />
+                                </div>
+                                <span className="font-medium text-sm">Manage Team</span>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

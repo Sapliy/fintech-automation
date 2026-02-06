@@ -65,7 +65,13 @@ const useEventStream = ({
         }
 
         try {
-            const ws = new WebSocket(url);
+            const urlObj = new URL(url);
+            if (!urlObj.searchParams.has("api_key")) {
+                const TEST_KEY = "sk_test_1234567890";
+                urlObj.searchParams.set("api_key", TEST_KEY);
+            }
+
+            const ws = new WebSocket(urlObj.toString());
             wsRef.current = ws;
 
             ws.onopen = () => {

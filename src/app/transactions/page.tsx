@@ -1,27 +1,58 @@
 'use client';
 
-import { FileText, Search, Filter, MoreHorizontal, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
-import { useState } from 'react';
-
-// Dummy Data
-const MOCK_TRANSACTIONS = [
-    { id: 'txn_123', amount: 500.00, currency: 'USD', status: 'completed', type: 'payment', customer: 'acct_x99', date: '2024-03-15T10:30:00Z' },
-    { id: 'txn_124', amount: 120.50, currency: 'EUR', status: 'pending', type: 'transfer', customer: 'acct_y88', date: '2024-03-15T11:15:00Z' },
-    { id: 'txn_125', amount: 2500.00, currency: 'USD', status: 'failed', type: 'payout', customer: 'acct_z77', date: '2024-03-14T09:00:00Z' },
-    { id: 'txn_126', amount: 49.99, currency: 'GBP', status: 'completed', type: 'payment', customer: 'acct_x99', date: '2024-03-14T08:45:00Z' },
-    { id: 'txn_127', amount: 1000.00, currency: 'USD', status: 'completed', type: 'topup', customer: 'wallet_001', date: '2024-03-13T15:20:00Z' },
-    { id: 'txn_128', amount: 750.00, currency: 'USD', status: 'completed', type: 'payment', customer: 'acct_a11', date: '2024-03-13T14:10:00Z' },
-    { id: 'txn_129', amount: 15.00, currency: 'USD', status: 'completed', type: 'fee', customer: 'system', date: '2024-03-13T14:10:05Z' },
-];
+import { FileText, Search, Filter, MoreHorizontal, ArrowUpRight, ArrowDownLeft, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function TransactionsPage() {
+    const { zone } = useAuthStore();
     const [filter, setFilter] = useState('');
+    const [transactions, setTransactions] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const filteredTransactions = MOCK_TRANSACTIONS.filter(t =>
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            setLoading(true);
+            try {
+                const zoneId = zone?.id || 'default';
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+                const response = await fetch(`${baseUrl}/v1/ledger/transactions?zone=${zoneId}&limit=50`);
+                const data = await response.json();
+
+                if (Array.isArray(data)) {
+                    setTransactions(data.map((tx: any) => ({
+                        id: tx.id,
+                        amount: tx.entries?.[0]?.amount || 0, // Using first entry as primary amount for simplicity
+                        currency: 'USD', // Ledger transactions don't have currency at header yet, but accounts do
+                        status: 'completed', // Ledger transactions are usually final
+                        type: tx.description.toLowerCase().includes('payment') ? 'payment' : 'ledger',
+                        customer: tx.entries?.[0]?.account_id || 'N/A',
+                        date: tx.created_at
+                    })));
+                }
+            } catch (error) {
+                console.error('Failed to fetch transactions:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTransactions();
+    }, [zone]);
+
+    const filteredTransactions = transactions.filter(t =>
         t.id.toLowerCase().includes(filter.toLowerCase()) ||
         t.customer.toLowerCase().includes(filter.toLowerCase()) ||
         t.status.toLowerCase().includes(filter.toLowerCase())
     );
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-full w-full bg-gray-50">
+                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-full w-full bg-gray-50">
@@ -64,46 +95,54 @@ export default function TransactionsPage() {
                                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Account</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider"></th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {filteredTransactions.map((tx) => (
-                                <tr key={tx.id} className="hover:bg-gray-50 transition-colors group">
-                                    <td className="px-6 py-4 text-sm font-mono text-gray-600">{tx.id}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            {tx.type === 'payment' || tx.type === 'topup' ?
-                                                <ArrowDownLeft className="w-4 h-4 text-emerald-500" /> :
-                                                <ArrowUpRight className="w-4 h-4 text-gray-400" />
-                                            }
-                                            <span className="text-sm font-medium text-gray-700 capitalize">{tx.type}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: tx.currency }).format(tx.amount)}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                                            ${tx.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                                tx.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-red-100 text-red-800'}`}>
-                                            {tx.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500 font-mono text-xs">{tx.customer}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {new Date(tx.date).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button className="text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <MoreHorizontal className="w-5 h-5" />
-                                        </button>
+                            {filteredTransactions.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-10 text-center text-gray-500 text-sm">
+                                        No transactions found
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                filteredTransactions.map((tx) => (
+                                    <tr key={tx.id} className="hover:bg-gray-50 transition-colors group">
+                                        <td className="px-6 py-4 text-sm font-mono text-gray-600">{tx.id}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                {tx.type === 'payment' ?
+                                                    <ArrowDownLeft className="w-4 h-4 text-emerald-500" /> :
+                                                    <ArrowUpRight className="w-4 h-4 text-gray-400" />
+                                                }
+                                                <span className="text-sm font-medium text-gray-700 capitalize">{tx.type}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: tx.currency }).format(tx.amount / 100)}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
+                                                ${tx.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                                    tx.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-red-100 text-red-800'}`}>
+                                                {tx.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-xs text-gray-500 font-mono">{tx.customer}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                            {new Date(tx.date).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <MoreHorizontal className="w-5 h-5" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

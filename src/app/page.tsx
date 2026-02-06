@@ -1,23 +1,71 @@
 'use client';
 
-import { Activity, ArrowUpRight, ArrowDownLeft, CreditCard, DollarSign, Users, Zap } from 'lucide-react';
+import { Activity, ArrowUpRight, CreditCard, DollarSign, Users, Zap, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-
-const STATS = [
-    { label: 'Total Volume', value: '$2.4M', change: '+12.5%', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-    { label: 'Active Flows', value: '14', change: '+2', icon: Zap, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: 'Transactions', value: '1,234', change: '+5.2%', icon: CreditCard, color: 'text-purple-600', bg: 'bg-purple-100' },
-    { label: 'Active Events', value: '892', change: '+24%', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-100' },
-];
-
-const RECENT_ACTIVITY = [
-    { id: 1, type: 'payment', message: 'Payment of $500.00 succeeded', time: '2 mins ago', icon: ArrowDownLeft, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { id: 2, type: 'flow', message: 'Fraud Check process completed', time: '5 mins ago', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { id: 3, type: 'payout', message: 'Payout of $2,500.00 initiated', time: '1 hour ago', icon: ArrowUpRight, color: 'text-gray-500', bg: 'bg-gray-50' },
-    { id: 4, type: 'system', message: 'Daily reconciliation started', time: '4 hours ago', icon: Activity, color: 'text-orange-500', bg: 'bg-orange-50' },
-];
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function DashboardPage() {
+    const { zone } = useAuthStore();
+    const [stats, setStats] = useState<any[]>([]);
+    const [recentActivity, setRecentActivity] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const zoneId = zone?.id || 'default';
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
+                // Fetch Payments for Volume
+                const paymentsRes = await fetch(`${baseUrl}/v1/payments/payment_intents?zone=${zoneId}&limit=100`);
+                const payments = await paymentsRes.json();
+
+                // Fetch Transactions for activity and count
+                const ledgerRes = await fetch(`${baseUrl}/v1/ledger/transactions?zone=${zoneId}&limit=10`);
+                const transactions = await ledgerRes.json();
+
+                const totalVolume = payments.reduce((acc: number, p: any) => p.status === 'succeeded' ? acc + p.amount : acc, 0);
+                const transactionCount = Array.isArray(transactions) ? transactions.length : 0;
+
+                setStats([
+                    { label: 'Total Volume', value: `$${(totalVolume / 100).toLocaleString()}`, change: '+0%', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+                    { label: 'Active Flows', value: '0', change: '+0', icon: Zap, color: 'text-blue-600', bg: 'bg-blue-100' },
+                    { label: 'Transactions', value: transactionCount.toString(), change: '+0%', icon: CreditCard, color: 'text-purple-600', bg: 'bg-purple-100' },
+                    { label: 'Active Events', value: '0', change: '+0%', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-100' },
+                ]);
+
+                if (Array.isArray(transactions)) {
+                    setRecentActivity(transactions.map((tx: any) => ({
+                        id: tx.id,
+                        type: 'ledger',
+                        message: tx.description,
+                        time: new Date(tx.created_at).toLocaleTimeString(),
+                        icon: Activity,
+                        color: 'text-blue-500',
+                        bg: 'bg-blue-50'
+                    })));
+                }
+
+            } catch (error) {
+                console.error('Failed to fetch dashboard data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [zone]);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-full w-full bg-gray-50">
+                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col h-full w-full bg-gray-50 overflow-y-auto">
             {/* Header */}
@@ -29,7 +77,7 @@ export default function DashboardPage() {
             <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {STATS.map((stat) => (
+                    {stats.map((stat) => (
                         <div key={stat.label} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start mb-4">
                                 <div className={`p-3 rounded-lg ${stat.bg} ${stat.color}`}>
@@ -55,19 +103,24 @@ export default function DashboardPage() {
                             </Link>
                         </div>
                         <div className="p-6 space-y-6">
-                            {RECENT_ACTIVITY.map((activity) => (
-                                <div key={activity.id} className="flex items-start gap-4">
-                                    <div className={`p-2 rounded-full ${activity.bg} ${activity.color} mt-1`}>
-                                        <activity.icon className="w-4 h-4" />
+                            {recentActivity.length === 0 ? (
+                                <p className="text-gray-500 text-sm text-center py-10">No recent activity found</p>
+                            ) : (
+                                recentActivity.map((activity) => (
+                                    <div key={activity.id} className="flex items-start gap-4">
+                                        <div className={`p-2 rounded-full ${activity.bg} ${activity.color} mt-1`}>
+                                            <activity.icon className="w-4 h-4" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+                                            <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                                        </div>
                                     </div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-900">{activity.message}</p>
-                                        <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
+                    ...
 
                     {/* Quick Actions */}
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden h-fit">

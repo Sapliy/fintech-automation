@@ -10,7 +10,14 @@ const useWebSocket = <T,>(
   const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const connect = () => {
-    const ws = new WebSocket(url);
+    // Append API Key if not present
+    const urlObj = new URL(url);
+    if (!urlObj.searchParams.has("api_key")) {
+      const TEST_KEY = "sk_test_1234567890";
+      urlObj.searchParams.set("api_key", TEST_KEY);
+    }
+
+    const ws = new WebSocket(urlObj.toString());
     wsRef.current = ws;
 
     ws.onopen = () => {

@@ -20,7 +20,7 @@ const EventIcon = ({ source }: { source: EventSource }) => {
 
 export default function EventTimelinePage() {
     const { events, connect, isConnected, clearEvents } = useEventStream({
-        url: process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/events/stream',
+        url: `${process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080'}/v1/events/stream`,
         autoReconnect: true
     });
 

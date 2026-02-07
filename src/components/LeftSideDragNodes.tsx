@@ -1,46 +1,30 @@
 import {
+  PlayCircle,
+  Cpu,
+  Zap,
   ArrowLeft,
   ArrowRight,
-  Trash2,
   Workflow,
-  // Trigger icons
-  Zap,
   Clock,
-  // Logic icons
   Split,
   Filter,
   Timer,
   UserCheck,
   Gauge,
-  // Action icons
   Send,
   Globe,
   FileText,
-  // Utility icons
   Bug,
   Brain,
-  // Category icons
-  PlayCircle,
-  Cpu,
   ArrowRightCircle,
-  Wrench,
-} from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { useStoreDialog } from '../store';
-import { useShallow } from 'zustand/shallow';
-import { SelectorDialog } from '../store/type';
+  Wrench
+} from "lucide-react";
+import { useRef, useState } from 'react';
 import { nodeColors } from '../utils/edgeStyles';
 
 type TProps = {
   onDragStart: (event: React.DragEvent, type: string) => void;
 };
-
-const selectorDialog: SelectorDialog = (state) => ({
-  dialog: state.dialog,
-  setDialog: state.setDialog,
-  clearAutomation: state.clearAutomation,
-  saveAutomation: state.saveAutomation,
-});
 
 // Node configuration organized by category
 const nodeCategories = [
@@ -157,10 +141,10 @@ const nodeCategories = [
 const LeftSideDragNodes = ({ onDragStart }: TProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(true);
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['triggers', 'logic', 'actions']);
-  const { saveAutomation, clearAutomation } = useStoreDialog(
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(['triggers', 'logic', 'actions', 'utilities']);
+  /* const { saveAutomation, clearAutomation } = useStoreDialog(
     useShallow(selectorDialog)
-  );
+  ); */
 
   const toggleCategory = (key: string) => {
     setExpandedCategories((prev) =>
@@ -168,190 +152,135 @@ const LeftSideDragNodes = ({ onDragStart }: TProps) => {
     );
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(true);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // Shortcut: Ctrl + E to toggle sidebar
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === 'e') {
-        setOpen(!open);
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [open]);
-
   return (
     <div
       ref={ref}
       className={`
-        h-screen relative transform transition-all duration-300
-        ${open ? 'w-5' : 'w-80'}
-        bg-white shadow-lg
+        h-screen relative transform transition-all duration-300 ease-in-out
+        ${open ? 'w-80' : 'w-12'}
+        bg-white border-r border-border shadow-soft-xl z-20
       `}
     >
       {/* Toggle Button */}
       <button
         className={`
-          absolute z-10 -right-3 top-6
-          p-1.5 rounded-full shadow-md
-          ${open
-            ? 'bg-blue-500 hover:bg-blue-600'
-            : 'bg-gray-700 hover:bg-gray-800'
-          }
-          text-white transition-all duration-200
+          absolute z-30 -right-3 top-6
+          p-1.5 rounded-full shadow-md border border-border
+          bg-white hover:bg-muted text-muted-foreground
+          transition-all duration-200
         `}
         onClick={() => setOpen(!open)}
       >
-        {!open ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
+        {!open ? <ArrowRight size={14} /> : <ArrowLeft size={14} />}
       </button>
 
       {/* Sidebar Content */}
-      {!open && (
-        <div className="h-full flex flex-col">
-          {/* Header */}
-          <div className="p-5 border-b border-gray-100">
-            <h2 className="text-lg font-bold text-gray-800">Automation Nodes</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Drag to create flows
-            </p>
+      <div className={`h-full flex flex-col ${!open ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-200`}>
+        {/* Header */}
+        <div className="p-5 border-b border-border bg-gradient-to-b from-white to-gray-50/50">
+          <div className="flex items-center gap-2 mb-1">
+            <Workflow className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-bold text-foreground">Flow Nodes</h2>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Drag nodes to build your automation
+          </p>
+        </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto">
-            {nodeCategories.map((category) => {
-              const isExpanded = expandedCategories.includes(category.key);
-              const CategoryIcon = category.icon;
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto px-2 py-4 space-y-1 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+          {nodeCategories.map((category) => {
+            const isExpanded = expandedCategories.includes(category.key);
+            const CategoryIcon = category.icon;
 
-              return (
-                <div key={category.key} className="border-b border-gray-100">
-                  {/* Category Header */}
-                  <button
-                    onClick={() => toggleCategory(category.key)}
-                    className="w-full px-5 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
+            return (
+              <div key={category.key} className="rounded-xl overflow-hidden border border-transparent hover:border-border/50 transition-colors">
+                {/* Category Header */}
+                <button
+                  onClick={() => toggleCategory(category.key)}
+                  className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-muted/50 rounded-lg transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-1.5 rounded-md bg-white shadow-sm border border-border/50 group-hover:border-primary/20 group-hover:shadow-md transition-all">
                       <CategoryIcon
-                        className="w-5 h-5"
+                        className="w-4 h-4"
                         style={{ color: category.color }}
                       />
-                      <div className="text-left">
-                        <div className="font-semibold text-gray-800">
-                          {category.label}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {category.description}
-                        </div>
-                      </div>
                     </div>
-                    <div
-                      className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''
-                        }`}
-                    >
-                      <ArrowRight size={16} className="text-gray-400" />
-                    </div>
-                  </button>
+                    <span className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
+                      {category.label}
+                    </span>
+                  </div>
+                  <ArrowRight
+                    size={14}
+                    className={`text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+                  />
+                </button>
 
-                  {/* Category Nodes */}
-                  {isExpanded && (
-                    <div className="px-3 pb-3 space-y-2">
-                      {category.nodes.map((node) => {
-                        const NodeIcon = node.icon;
-                        const nodeColor = (nodeColors as any)[node.type] || {
-                          from: category.color,
-                          to: category.color,
-                        };
+                {/* Category Nodes */}
+                <div
+                  className={`
+                    overflow-hidden transition-all duration-300 ease-in-out
+                    ${isExpanded ? 'max-h-[1000px] opacity-100 mt-1 mb-2' : 'max-h-0 opacity-0'}
+                  `}
+                >
+                  <div className="px-2 space-y-2">
+                    {category.nodes.map((node) => {
+                      const NodeIcon = node.icon;
+                      const nodeColor = (nodeColors as any)[node.type] || {
+                        from: category.color,
+                        to: category.color,
+                      };
 
-                        return (
-                          <div
-                            key={node.type}
-                            draggable
-                            onDragStart={(event) => onDragStart(event, node.type)}
-                            className={`
-                              group relative p-3 rounded-lg cursor-grab
-                              border-2 bg-white
-                              hover:shadow-md active:shadow-lg
-                              transition-all duration-200
-                            `}
-                            style={{
-                              borderColor: nodeColor.from + '40',
-                            }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                className="p-2 rounded-lg"
-                                style={{
-                                  backgroundColor: nodeColor.from + '15',
-                                }}
-                              >
-                                <NodeIcon
-                                  className="w-4 h-4"
-                                  style={{ color: nodeColor.from }}
-                                />
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-800 text-sm">
-                                  {node.label}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {node.description}
-                                </p>
-                              </div>
+                      return (
+                        <div
+                          key={node.type}
+                          draggable
+                          onDragStart={(event) => onDragStart(event, node.type)}
+                          className={`
+                            group relative p-3 rounded-lg cursor-grab
+                            border border-border/60 bg-white
+                            hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5
+                            active:scale-[0.98] active:shadow-sm
+                            transition-all duration-200
+                          `}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className="p-2 rounded-lg shadow-sm shrink-0"
+                              style={{
+                                backgroundColor: nodeColor.from + '10',
+                                color: nodeColor.from
+                              }}
+                            >
+                              <NodeIcon className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-foreground text-sm truncate group-hover:text-primary transition-colors">
+                                {node.label}
+                              </p>
+                              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                {node.description || `Add a ${node.label.toLowerCase()} step`}
+                              </p>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+
+                          {/* Drag Indicator */}
+                          <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="p-1 rounded bg-muted">
+                              <ArrowRight className="w-3 h-3 text-muted-foreground" />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="p-4 border-t border-gray-100 space-y-2">
-            <button
-              onClick={saveAutomation}
-              className={`
-                cursor-pointer
-                flex items-center justify-center gap-2 w-full
-                px-4 py-2.5 rounded-lg
-                bg-blue-500 hover:bg-blue-600
-                text-white font-medium transition-colors
-              `}
-            >
-              <Workflow size={18} />
-              Save Flow
-            </button>
-
-            <button
-              onClick={clearAutomation}
-              className={`
-                cursor-pointer
-                flex items-center justify-center gap-2 w-full
-                px-4 py-2 rounded-lg
-                bg-red-50 hover:bg-red-100
-                text-red-600 font-medium transition-colors
-              `}
-            >
-              <Trash2 size={16} />
-              Clear
-            </button>
-          </div>
+              </div>
+            );
+          })}
         </div>
-      )}
+      </div>
     </div>
   );
 };

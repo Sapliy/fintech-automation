@@ -1,13 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ChevronDown, Shield, Zap, Plus } from 'lucide-react';
-
-export interface Zone {
-    id: string;
-    name: string;
-    mode: 'test' | 'live';
-}
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, Shield, Zap, Plus, Check } from 'lucide-react';
+import { Zone } from '../store/auth.store';
 
 interface ZoneSelectorProps {
     zones: Zone[];
@@ -18,63 +13,107 @@ interface ZoneSelectorProps {
 
 const ZoneSelector = ({ zones, selectedZone, onSelect, onManage }: ZoneSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (ref.current && !ref.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     return (
-        <div className="relative w-full px-2 mb-4">
+        <div className="relative" ref={ref}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    flex items-center w-full p-2 rounded-lg border transition-all
-                    ${selectedZone?.mode === 'live'
-                        ? 'bg-green-50 border-green-200 text-green-700'
-                        : 'bg-blue-50 border-blue-200 text-blue-700'}
+                    flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-200
+                    ${isOpen ? 'ring-2 ring-primary/20 border-primary' : 'border-border hover:border-border/80 hover:bg-muted/50'}
+                    bg-white
                 `}
             >
-                <div className="flex-1 flex items-center overflow-hidden">
+                <div className={`
+                    p-1 rounded-md 
+                    ${selectedZone?.mode === 'live' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}
+                `}>
                     {selectedZone?.mode === 'live' ? (
-                        <Zap className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <Zap className="w-3.5 h-3.5" />
                     ) : (
-                        <Shield className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <Shield className="w-3.5 h-3.5" />
                     )}
-                    <span className="text-xs font-bold truncate">
-                        {selectedZone?.name || 'Select Zone'}
-                    </span>
                 </div>
-                <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+
+                <div className="text-left hidden sm:block">
+                    <p className="text-xs font-semibold text-foreground leading-none">
+                        {selectedZone?.name || 'Select Zone'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider leading-none mt-0.5">
+                        {selectedZone?.mode || 'NO MODE'}
+                    </p>
+                </div>
+
+                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
-                <div className="absolute left-full ml-2 top-0 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-[100] animate-in fade-in slide-in-from-left-2">
-                    <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                        Switch Zone
+                <div className="absolute top-full left-0 mt-2 w-60 bg-white rounded-xl shadow-soft-xl border border-border py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border/50">
+                        Switch Environment
                     </div>
-                    {zones.map((z) => (
-                        <button
-                            key={z.id}
-                            onClick={() => {
-                                onSelect(z);
-                                setIsOpen(false);
-                            }}
-                            className={`
-                                w-full flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors
-                                ${selectedZone?.id === z.id ? 'text-blue-600 font-medium' : 'text-gray-600'}
-                            `}
-                        >
-                            <div className={`w-2 h-2 rounded-full mr-3 ${z.mode === 'live' ? 'bg-green-500 shadow-sm shadow-green-200' : 'bg-blue-500 shadow-sm shadow-blue-200'}`} />
-                            <div className="flex flex-col items-start translate-y-[1px]">
-                                <span className="text-xs leading-none mb-1">{z.name}</span>
-                                <span className="text-[10px] opacity-60 uppercase">{z.mode}</span>
-                            </div>
-                        </button>
-                    ))}
+
+                    <div className="p-1.5 space-y-0.5 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
+                        {zones.map((z) => {
+                            const isSelected = selectedZone?.id === z.id;
+                            const isLive = z.mode === 'live';
+
+                            return (
+                                <button
+                                    key={z.id}
+                                    onClick={() => {
+                                        onSelect(z);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`
+                                        w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all group
+                                        ${isSelected ? 'bg-muted' : 'hover:bg-muted/50'}
+                                    `}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`
+                                            w-2 h-2 rounded-full ring-2 ring-offset-1 transition-all
+                                            ${isLive
+                                                ? 'bg-emerald-500 ring-emerald-200'
+                                                : 'bg-blue-500 ring-blue-200'
+                                            }
+                                        `}></div>
+                                        <div className="flex flex-col items-start">
+                                            <span className={`text-sm font-medium ${isSelected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                                                {z.name}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {isSelected && <Check className="w-3.5 h-3.5 text-primary" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+
                     {onManage && (
-                        <div className="border-t border-gray-50 mt-1 pt-1">
+                        <div className="p-1.5 border-t border-border/50 mt-1">
                             <button
-                                onClick={onManage}
-                                className="w-full flex items-center px-3 py-2 text-[11px] text-gray-500 hover:text-blue-600 transition-colors"
+                                onClick={() => {
+                                    onManage();
+                                    setIsOpen(false);
+                                }}
+                                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                             >
-                                <Plus className="w-3 h-3 mr-2" />
-                                Manage Zones
+                                <Plus className="w-3.5 h-3.5" />
+                                Create or Manage Zones
                             </button>
                         </div>
                     )}

@@ -161,12 +161,32 @@ export default function FlowBuilderPage() {
                         defaultEdgeOptions={{
                             type: "custom",
                             animated: true,
+                            style: { stroke: '#94a3b8', strokeWidth: 2 },
                         }}
+                        proOptions={{ hideAttribution: true }}
                         fitView
+                        className="bg-gray-50/50"
                     >
-                        <Background variant={BackgroundVariant.Lines} />
-                        <MiniMap />
-                        <Controls />
+                        <Background
+                            variant={BackgroundVariant.Dots}
+                            gap={20}
+                            size={1}
+                            color="#cbd5e1"
+                        />
+                        <MiniMap
+                            className="bg-white! border! border-border! rounded-lg! shadow-lg! bottom-8! right-8!"
+                            nodeColor={(n) => {
+                                if (n.type === 'trigger') return '#3b82f6';
+                                if (n.type === 'action') return '#10b981';
+                                if (n.type === 'condition') return '#8b5cf6';
+                                return '#cbd5e1';
+                            }}
+                            maskColor="rgba(248, 250, 252, 0.7)"
+                        />
+                        <Controls
+                            className="bg-white! border! border-border! shadow-sm! rounded-lg! p-1! left-8! bottom-8!"
+                            showInteractive={false}
+                        />
                     </ReactFlow>
                 </div>
 

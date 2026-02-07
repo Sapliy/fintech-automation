@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
-import authService from '@/services/authService';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuthStore } from '@/store/auth.store';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
-  const { login, setLoading, setError, isLoading, error, clearError } = useAuthStore();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/';
+
+  const { login, isLoading, error, clearError } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,16 +19,13 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-    setLoading(true);
+    // setLoading(true); // login action handles loading state
 
     try {
-      const response = await authService.login(email, password);
-      login({ id: '', email, emailVerified: true }, response.token);
-      router.push('/');
+      await login(email, password);
+      router.push(redirect);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
-    } finally {
-      setLoading(false);
+      // Error is handled in store
     }
   };
 
@@ -145,5 +144,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }

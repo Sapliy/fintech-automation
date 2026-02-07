@@ -2,35 +2,43 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuthStore } from '@/store/authStore';
 import authService from '@/services/authService';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function RegisterPage() {
-  const { setLoading, setError, isLoading, error, clearError } = useAuthStore();
+  const { setLoading, isLoading } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [errorLevel, setErrorLevel] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const getPasswordStrength = (pass: string) => {
+    if (!pass) return 0;
+    let score = 0;
+    if (pass.length > 7) score++;
+    if (pass.match(/[A-Z]/)) score++;
+    if (pass.match(/[0-9]/)) score++;
+    if (pass.match(/[^A-Za-z0-9]/)) score++;
+    return score;
+  };
+
+  const strength = getPasswordStrength(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    clearError();
+    setErrorLevel(null);
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setErrorLevel('Passwords do not match');
       return;
     }
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
-      return;
-    }
-
-    if (!acceptTerms) {
-      setError('Please accept the terms and conditions');
+    if (!acceptedTerms) {
+      setErrorLevel('You must accept the terms and conditions');
       return;
     }
 
@@ -40,7 +48,7 @@ export default function RegisterPage() {
       await authService.register(email, password);
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setErrorLevel(err instanceof Error ? err.message : 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -79,20 +87,20 @@ export default function RegisterPage() {
 
       <div className="relative z-10 w-full max-w-md px-6 py-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-violet-500 to-purple-600 shadow-xl shadow-purple-500/25 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-indigo-500 to-blue-600 shadow-xl shadow-blue-500/25 mb-4">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Create account</h1>
-          <p className="text-gray-400">Start automating your fintech workflows</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
+          <p className="text-gray-400">Join Sapliy Fintech Automation today</p>
         </div>
 
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/10">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {errorLevel && (
               <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                {error}
+                {errorLevel}
               </div>
             )}
 
@@ -142,16 +150,30 @@ export default function RegisterPage() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-gray-500">Must be at least 8 characters</p>
+
+              {/* Password Strength Indicator */}
+              {password && (
+                <div className="flex gap-1 mt-2">
+                  {[1, 2, 3, 4].map((level) => (
+                    <div
+                      key={level}
+                      className={`h-1 flex-1 rounded-full ${strength >= level
+                        ? strength <= 2 ? 'bg-red-500' : strength === 3 ? 'bg-yellow-500' : 'bg-green-500'
+                        : 'bg-white/10'
+                        }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300">
-                Confirm password
+                Confirm Password
               </label>
               <input
                 id="confirmPassword"
-                type={showPassword ? 'text' : 'password'}
+                type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -160,19 +182,16 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-2">
               <input
                 type="checkbox"
                 id="terms"
-                checked={acceptTerms}
-                onChange={(e) => setAcceptTerms(e.target.checked)}
-                className="w-4 h-4 mt-0.5 rounded bg-white/5 border-white/10 text-purple-500 focus:ring-purple-500 focus:ring-offset-0"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1 w-4 h-4 rounded bg-white/5 border-white/10 text-purple-500 focus:ring-purple-500 focus:ring-offset-0"
               />
               <label htmlFor="terms" className="text-sm text-gray-400">
-                I agree to the{' '}
-                <a href="#" className="text-purple-400 hover:text-purple-300">Terms of Service</a>
-                {' '}and{' '}
-                <a href="#" className="text-purple-400 hover:text-purple-300">Privacy Policy</a>
+                I agree to the <Link href="/terms" className="text-purple-400 hover:text-purple-300">Terms of Service</Link> and <Link href="/privacy" className="text-purple-400 hover:text-purple-300">Privacy Policy</Link>
               </label>
             </div>
 
@@ -190,7 +209,7 @@ export default function RegisterPage() {
                   Creating account...
                 </span>
               ) : (
-                'Create account'
+                'Create Account'
               )}
             </button>
           </form>

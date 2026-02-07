@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import authService from '@/services/authService';
 
 // User roles in the system
 export type UserRole = 'admin' | 'finance' | 'developer' | 'viewer';
@@ -22,13 +23,14 @@ export interface Zone {
     mode: Environment; // 'test' | 'live'
 }
 
-// User data
+// User data - aligned with authService
 export interface User {
     id: string;
     email: string;
     name: string;
     avatar_url?: string;
     role: UserRole;
+    email_verified?: boolean;
 }
 
 // Auth state
@@ -51,6 +53,9 @@ interface AuthState {
     // Auth token
     accessToken: string | null;
 
+    // Auth status
+    isAuthenticated: boolean;
+
     // Loading state
     isLoading: boolean;
 
@@ -66,6 +71,7 @@ interface AuthState {
     setAccessToken: (token: string | null) => void;
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
+    clearError: () => void;
 
     // Login action
     login: (email: string, password: string) => Promise<void>;
@@ -100,10 +106,11 @@ const useAuthStore = create<AuthState>()(
             zones: [],
             environment: 'test',
             accessToken: null,
+            isAuthenticated: false,
             isLoading: false,
             error: null,
 
-            setUser: (user) => set({ user }),
+            setUser: (user) => set({ user, isAuthenticated: !!user }),
             setOrganization: (organization) => set({ organization }),
             setZone: (zone) => set({ zone, environment: zone?.mode || 'test' }),
             setZones: (zones) => set({ zones }),
@@ -111,6 +118,7 @@ const useAuthStore = create<AuthState>()(
             setAccessToken: (accessToken) => set({ accessToken }),
             setLoading: (isLoading) => set({ isLoading }),
             setError: (error) => set({ error }),
+            clearError: () => set({ error: null }),
 
             login: async (email: string, password: string) => {
                 const { setLoading, setError, setUser, setAccessToken } = get();
@@ -119,28 +127,15 @@ const useAuthStore = create<AuthState>()(
                 setError(null);
 
                 try {
-                    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:8080/auth';
+                    const data = await authService.login(email, password);
 
-                    const response = await fetch(`${authUrl}/login`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ email, password }),
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Invalid credentials');
-                    }
-
-                    const data = await response.json();
-
-                    setAccessToken(data.access_token);
+                    setAccessToken(data.token);
                     setUser({
                         id: data.user.id,
                         email: data.user.email,
                         name: data.user.name || email.split('@')[0],
-                        role: data.user.role || 'developer',
+                        role: (data.user.role as UserRole) || 'developer',
+                        email_verified: data.user.email_verified
                     });
                 } catch (err) {
                     const message = err instanceof Error ? err.message : 'Login failed';
@@ -158,8 +153,11 @@ const useAuthStore = create<AuthState>()(
                     zone: null,
                     zones: [],
                     accessToken: null,
+                    isAuthenticated: false,
                     error: null,
                 });
+                // Clear cookies for middleware
+                document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
             },
 
             hasRole: (requiredRole: UserRole) => {
@@ -188,10 +186,10 @@ const useAuthStore = create<AuthState>()(
                 zone: state.zone,
                 zones: state.zones,
                 environment: state.environment,
+                isAuthenticated: state.isAuthenticated,
             }),
         }
     )
 );
 
 export { useAuthStore };
-export type { AuthState };

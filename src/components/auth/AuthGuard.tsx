@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/store/auth.store';
 
 interface AuthGuardProps {
     children: React.ReactNode;
@@ -17,7 +17,7 @@ export function AuthGuard({
 }: AuthGuardProps) {
     const router = useRouter();
     const pathname = usePathname();
-    const { isAuthenticated, token } = useAuthStore();
+    const { isAuthenticated, accessToken } = useAuthStore();
     const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
@@ -39,12 +39,12 @@ export function AuthGuard({
 
     // Also sync token to cookie for middleware
     useEffect(() => {
-        if (token) {
-            document.cookie = `auth-token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+        if (accessToken) {
+            document.cookie = `auth-token=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
         } else {
             document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         }
-    }, [token]);
+    }, [accessToken]);
 
     if (isChecking && requireAuth) {
         return (

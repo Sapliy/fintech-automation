@@ -1,7 +1,16 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8081';
 
+interface User {
+    id: string;
+    email: string;
+    name?: string;
+    role?: string;
+    email_verified?: boolean;
+}
+
 interface LoginResponse {
     token: string;
+    user: User;
 }
 
 interface RegisterResponse {

@@ -10,6 +10,10 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // Forgot Password page is simple and doesn't explicitly depend on auth store state,
+  // but we could use it for global loading/error if we wanted.
+  // Keeping local state for simplicity as it's an isolated flow.
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);

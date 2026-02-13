@@ -25,8 +25,12 @@ export interface AccountBalance {
 
 const ledgerService = {
     /** List ledger entries */
-    async listEntries(): Promise<LedgerEntry[]> {
-        return apiClient.get<LedgerEntry[]>('/v1/ledger/entries');
+    /** List ledger entries */
+    async listEntries(zoneId?: string, limit: number = 20): Promise<LedgerEntry[]> {
+        const query = new URLSearchParams();
+        if (zoneId) query.append('zone_id', zoneId);
+        query.append('limit', limit.toString());
+        return apiClient.get<LedgerEntry[]>(`/v1/ledger/transactions?${query.toString()}`);
     },
 
     /** Get account balance */

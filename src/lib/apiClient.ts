@@ -7,6 +7,7 @@
  * - Handles 401 (redirect to login) and 429 (rate limit) responses
  * - Provides typed helpers: get, post, put, del
  */
+import { toast } from 'sonner';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
@@ -59,37 +60,50 @@ async function request<T>(
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers,
-    });
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...options,
+            headers,
+        });
 
-    // Handle 401 — redirect to login
-    if (response.status === 401) {
-        if (typeof window !== 'undefined') {
-            // Clear stored auth state
-            localStorage.removeItem('fintech-auth-storage');
-            document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-            window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+        // Handle 401 — redirect to login
+        if (response.status === 401) {
+            if (typeof window !== 'undefined') {
+                // Clear stored auth state
+                localStorage.removeItem('fintech-auth-storage');
+                document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+            }
+            throw new ApiRequestError(401, 'Unauthorized — session expired');
         }
-        throw new ApiRequestError(401, 'Unauthorized — session expired');
+
+        // Handle 429 — rate limit
+        if (response.status === 429) {
+            const retryAfter = response.headers.get('Retry-After') || '60';
+            throw new ApiRequestError(429, `Rate limit exceeded. Retry after ${retryAfter}s`);
+        }
+
+        // Parse response
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            const message = data?.error || data?.message || `Request failed (${response.status})`;
+            throw new ApiRequestError(response.status, message);
+        }
+
+        return data as T;
+    } catch (error) {
+        // Network errors (e.g., server down)
+        if (error instanceof TypeError && error.message === 'Failed to fetch') {
+            toast.error('Network Error: Unable to reach the server. Please check your connection.');
+        } else if (error instanceof ApiRequestError) {
+            // 4xx/5xx errors thrown above
+            toast.error(error.message || 'An unexpected error occurred');
+        } else {
+            console.error('Unexpected API Error:', error);
+        }
+        throw error;
     }
-
-    // Handle 429 — rate limit
-    if (response.status === 429) {
-        const retryAfter = response.headers.get('Retry-After') || '60';
-        throw new ApiRequestError(429, `Rate limit exceeded. Retry after ${retryAfter}s`);
-    }
-
-    // Parse response
-    const data = await response.json();
-
-    if (!response.ok) {
-        const message = data?.error || data?.message || `Request failed (${response.status})`;
-        throw new ApiRequestError(response.status, message);
-    }
-
-    return data as T;
 }
 
 // ----- Public helpers -----

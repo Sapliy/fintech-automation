@@ -1,24 +1,42 @@
 'use client';
 
-import { Settings, Shield, AlertTriangle, CheckCircle, Search } from 'lucide-react';
-import { useState } from 'react';
-
-// Dummy Data
-const MOCK_LOGS = [
-    { id: 'log_001', action: 'NODE_CREATED', user: 'admin@fintech.io', details: 'Created generic-trigger node', timestamp: '2024-03-15T11:45:00Z', status: 'success' },
-    { id: 'log_002', action: 'FLOW_DEPLOYED', user: 'dev_team', details: 'Deployed "Large Transaction Alert"', timestamp: '2024-03-15T11:30:00Z', status: 'success' },
-    { id: 'log_003', action: 'LOGIN_FAILURE', user: 'unknown', details: 'Failed login attempt from ip 192.168.1.5', timestamp: '2024-03-15T10:15:00Z', status: 'warning' },
-    { id: 'log_004', action: 'API_KEY_ROTATED', user: 'system', details: 'Automated key rotation', timestamp: '2024-03-14T00:00:00Z', status: 'success' },
-    { id: 'log_005', action: 'NODE_DELETED', user: 'admin@fintech.io', details: 'Deleted legacy-mqtt-node', timestamp: '2024-03-13T16:20:00Z', status: 'success' },
-];
+import { Settings, Shield, AlertTriangle, CheckCircle, Search, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import auditService, { AuditLog } from '@/services/auditService';
 
 export default function AuditLogsPage() {
     const [filter, setFilter] = useState('');
+    const [logs, setLogs] = useState<AuditLog[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const filteredLogs = MOCK_LOGS.filter(l =>
+    useEffect(() => {
+        const fetchLogs = async () => {
+            setLoading(true);
+            try {
+                const data = await auditService.getAuditLogs({ limit: 50 });
+                setLogs(data);
+            } catch (error) {
+                console.error('Failed to fetch audit logs:', error);
+                setLogs([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchLogs();
+    }, []);
+
+    const filteredLogs = logs.filter(l =>
         l.action.toLowerCase().includes(filter.toLowerCase()) ||
         l.user.toLowerCase().includes(filter.toLowerCase())
     );
+
+    if (loading && logs.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-full w-full bg-gray-50">
+                <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-full w-full bg-gray-50">

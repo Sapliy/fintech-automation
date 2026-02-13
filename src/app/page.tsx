@@ -1,83 +1,91 @@
 'use client';
 
-import { Activity, ArrowUpRight, CreditCard, DollarSign, Users, Zap, Loader2, Search, MoreHorizontal, ArrowRight, PlayCircle, Shield } from 'lucide-react';
+import { Activity, CreditCard, DollarSign, Users, Zap, Loader2, Search, ArrowUpRight, ArrowRight, PlayCircle, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuthStore, Zone } from '@/store/auth.store';
 import ZoneSelector from '@/components/ZoneSelector';
-
-// Mock Zones for now - normally this would come from an API or store
-const MOCK_ZONES: Zone[] = [
-    { id: 'zone_test_123', name: 'Development', mode: 'test', org_id: 'org_123' },
-    { id: 'zone_live_456', name: 'Production', mode: 'live', org_id: 'org_123' },
-    { id: 'zone_staging_789', name: 'Staging', mode: 'test', org_id: 'org_123' },
-];
+import zoneService from '@/services/zoneService';
+import paymentService from '@/services/paymentService';
+import ledgerService from '@/services/ledgerService';
 
 export default function DashboardPage() {
     const { zone, setZone } = useAuthStore();
     const [stats, setStats] = useState<any[]>([]);
     const [recentActivity, setRecentActivity] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [zones, setZones] = useState<Zone[]>([]);
 
     useEffect(() => {
-        // Initialize with default zone if none selected
-        if (!zone && MOCK_ZONES.length > 0) {
-            setZone(MOCK_ZONES[0]);
-        }
+        const fetchZones = async () => {
+            try {
+                // Iterate organizations if needed, or just fetch for current context if API supports it
+                // For now, assuming first org or similar logic, but zoneService.listZones needs orgId.
+                // We'll trust the auth store or fetch for 'default' org if not in store.
+                // Actually, better to just let the ZoneSelector handle list/select,
+                // but we need an initial zone for the dashboard data.
+                const { organization } = useAuthStore.getState();
+                if (organization?.id) {
+                    const fetchedZones = await zoneService.list(organization.id);
+                    setZones(fetchedZones);
+                    if (!zone && fetchedZones.length > 0) {
+                        setZone(fetchedZones[0]);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch zones", error);
+            }
+        };
+        fetchZones();
     }, [zone, setZone]);
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!zone) return;
+
             setLoading(true);
             try {
-                const zoneId = zone?.id || 'default';
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+                // Parallel fetch for dashboard data
+                const [payments, transactions] = await Promise.all([
+                    paymentService.list(zone.id, 100),
+                    ledgerService.listEntries(zone.id, 10), // Assuming getEntries supports limit/zone
+                ]);
 
-                // Fetch Payments for Volume
-                const paymentsRes = await fetch(`${baseUrl}/v1/payments/payment_intents?zone=${zoneId}&limit=100`);
-                const payments = await paymentsRes.json();
+                // Calculate stats
+                const totalVolume = Array.isArray(payments)
+                    ? payments.reduce((acc: number, p: any) => p.status === 'succeeded' ? acc + p.amount : acc, 0)
+                    : 0;
 
-                // Fetch Transactions for activity and count
-                const ledgerRes = await fetch(`${baseUrl}/v1/ledger/transactions?zone=${zoneId}&limit=10`);
-                const transactions = await ledgerRes.json();
+                // For active flows, we might need a flowService call, but let's mock the count for now or fetch it if cheap
+                // const flows = await flowService.listFlows(zone.id);
 
-                const totalVolume = Array.isArray(payments) ? payments.reduce((acc: number, p: any) => p.status === 'succeeded' ? acc + p.amount : acc, 0) : 0;
                 const transactionCount = Array.isArray(transactions) ? transactions.length : 0;
 
                 setStats([
                     { label: 'Total Volume', value: `$${(totalVolume / 100).toLocaleString()}`, change: '+12.5%', trend: 'up', icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                    { label: 'Active Flows', value: '4', change: '+1', trend: 'up', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                    { label: 'Active Flows', value: '4', change: '+1', trend: 'up', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10' }, // Todo: Wire flow count
                     { label: 'Transactions', value: transactionCount.toString(), change: '+8.2%', trend: 'up', icon: CreditCard, color: 'text-violet-500', bg: 'bg-violet-500/10' },
                     { label: 'System Health', value: '99.9%', change: 'Stable', trend: 'neutral', icon: Activity, color: 'text-orange-500', bg: 'bg-orange-500/10' },
                 ]);
 
-                if (Array.isArray(transactions)) {
+                if (Array.isArray(transactions) && transactions.length > 0) {
                     setRecentActivity(transactions.map((tx: any) => ({
                         id: tx.id,
                         type: 'ledger',
                         message: tx.description || 'Transaction processed',
                         amount: tx.amount ? `$${(tx.amount / 100).toFixed(2)}` : '-',
-                        status: 'success',
+                        status: 'success', // Simplified
                         time: new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                         icon: CreditCard,
                     })));
                 } else {
-                    // Fallback mock activity if API fails or empty
-                    setRecentActivity([
-                        { id: '1', type: 'flow', message: 'Payment Flow triggered', amount: '-', status: 'success', time: '10:42 AM', icon: Zap },
-                        { id: '2', type: 'system', message: 'Zone configuration updated', amount: '-', status: 'info', time: '09:15 AM', icon: Shield },
-                    ]);
+                    setRecentActivity([]);
                 }
 
             } catch (error) {
                 console.error('Failed to fetch dashboard data:', error);
-                // Set fallback data so UI doesn't look broken
-                setStats([
-                    { label: 'Total Volume', value: '$0.00', change: '0%', trend: 'neutral', icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                    { label: 'Active Flows', value: '0', change: '0', trend: 'neutral', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                    { label: 'Transactions', value: '0', change: '0%', trend: 'neutral', icon: CreditCard, color: 'text-violet-500', bg: 'bg-violet-500/10' },
-                    { label: 'System Health', value: 'Good', change: '-', trend: 'neutral', icon: Activity, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-                ]);
+                // toast.error is handled by apiClient, but we can set empty states here
+                setStats([]);
             } finally {
                 setLoading(false);
             }
@@ -86,7 +94,7 @@ export default function DashboardPage() {
         fetchData();
     }, [zone]);
 
-    if (loading) {
+    if (loading && !stats.length) { // Only show full loader if no data
         return (
             <div className="flex items-center justify-center h-full w-full bg-gray-50/50">
                 <div className="flex flex-col items-center gap-3">
@@ -118,7 +126,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="h-8 w-px bg-border mx-1 hidden md:block"></div>
                         <ZoneSelector
-                            zones={MOCK_ZONES}
+                            zones={zones}
                             selectedZone={zone}
                             onSelect={setZone}
                             onManage={() => console.log('Manage zones')}

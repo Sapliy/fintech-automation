@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 import ClientLayout from '@/components/layout/ClientLayout';
+import ToastProvider from '@/components/ToastProvider';
 
 export default function RootLayout({
     children,
@@ -18,6 +19,7 @@ export default function RootLayout({
         <html lang="en">
             <body>
                 <ClientLayout>
+                    <ToastProvider />
                     {children}
                 </ClientLayout>
             </body>

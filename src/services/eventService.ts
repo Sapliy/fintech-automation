@@ -64,6 +64,10 @@ const eventService = {
             }
         };
     },
+    /** Replay an event */
+    async replay(eventId: string, zoneId: string): Promise<void> {
+        return apiClient.post<void>(`/v1/events/${eventId}/replay`, { zoneId });
+    },
 };
 
 export default eventService;

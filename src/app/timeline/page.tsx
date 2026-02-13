@@ -6,7 +6,8 @@ import useEventStream from '../../hooks/useEventStream';
 import { EventSource } from '../../types/events';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/store/auth.store';
-import useToaster from '@/store/toaster.store';
+import { toast } from 'sonner';
+import eventService from '@/services/eventService';
 
 const EventIcon = ({ source }: { source: EventSource }) => {
     switch (source) {
@@ -26,43 +27,15 @@ export default function EventTimelinePage() {
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const { zone } = useAuthStore();
-    const { addToast } = useToaster();
 
     const handleReplay = async (event: any) => {
         if (!zone) return;
 
         try {
-            const flowServiceUrl = process.env.NEXT_PUBLIC_FLOW_SERVICE_URL || 'http://localhost:8084';
-            const response = await fetch(`${flowServiceUrl}/api/v1/events/${event.id}/replay`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ zoneId: zone.id }),
-            });
-
-            if (response.ok) {
-                addToast({
-                    title: 'Success',
-                    description: 'Event replayed successfully',
-                    status: 'success',
-                    position: 'top-right'
-                });
-            } else {
-                addToast({
-                    title: 'Error',
-                    description: 'Failed to replay event',
-                    status: 'error',
-                    position: 'top-right'
-                });
-            }
+            await eventService.replay(event.id, zone.id);
+            toast.success('Event replayed successfully');
         } catch (error) {
-            addToast({
-                title: 'Error',
-                description: 'Error replaying event',
-                status: 'error',
-                position: 'top-right'
-            });
+            // Error is handled by apiClient toast, but we can log specific context
             console.error('Error replaying event:', error);
         }
     };
@@ -144,7 +117,7 @@ export default function EventTimelinePage() {
                                                             {event.source}
                                                         </span>
                                                     </h3>
-                                                    <p className="text-sm text-gray-500 mt-0.5 font-mono text-xs">
+                                                    <p className="text-gray-500 mt-0.5 font-mono text-xs">
                                                         ID: {event.id}
                                                     </p>
                                                 </div>

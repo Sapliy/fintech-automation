@@ -3,6 +3,7 @@
 import { FileText, Search, Filter, MoreHorizontal, ArrowUpRight, ArrowDownLeft, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/auth.store';
+import ledgerService from '@/services/ledgerService';
 
 export default function TransactionsPage() {
     const { zone } = useAuthStore();
@@ -12,26 +13,24 @@ export default function TransactionsPage() {
 
     useEffect(() => {
         const fetchTransactions = async () => {
+            if (!zone) return;
             setLoading(true);
             try {
-                const zoneId = zone?.id || 'default';
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-                const response = await fetch(`${baseUrl}/v1/ledger/transactions?zone=${zoneId}&limit=50`);
-                const data = await response.json();
-
+                const data = await ledgerService.listEntries(zone.id, 50);
                 if (Array.isArray(data)) {
                     setTransactions(data.map((tx: any) => ({
                         id: tx.id,
-                        amount: tx.entries?.[0]?.amount || 0, // Using first entry as primary amount for simplicity
-                        currency: 'USD', // Ledger transactions don't have currency at header yet, but accounts do
-                        status: 'completed', // Ledger transactions are usually final
-                        type: tx.description.toLowerCase().includes('payment') ? 'payment' : 'ledger',
-                        customer: tx.entries?.[0]?.account_id || 'N/A',
+                        amount: tx.amount,
+                        currency: tx.currency || 'USD',
+                        status: 'completed',
+                        type: tx.type || 'ledger',
+                        customer: tx.account_id || 'N/A',
                         date: tx.created_at
                     })));
                 }
             } catch (error) {
                 console.error('Failed to fetch transactions:', error);
+                setTransactions([]);
             } finally {
                 setLoading(false);
             }

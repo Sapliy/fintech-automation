@@ -26,8 +26,12 @@ export interface CreatePaymentIntentRequest {
 
 const paymentService = {
     /** List payments */
-    async list(): Promise<PaymentIntent[]> {
-        return apiClient.get<PaymentIntent[]>('/v1/payments');
+    /** List payments */
+    async list(zoneId?: string, limit: number = 20): Promise<PaymentIntent[]> {
+        const query = new URLSearchParams();
+        if (zoneId) query.append('zone_id', zoneId);
+        query.append('limit', limit.toString());
+        return apiClient.get<PaymentIntent[]>(`/v1/payments/payment_intents?${query.toString()}`);
     },
 
     /** Create a payment intent */

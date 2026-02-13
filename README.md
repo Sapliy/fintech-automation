@@ -112,6 +112,97 @@ src/
 | **Developer** | Create and edit automations |
 | **Viewer** | Read-only access |
 
+## Template Variables
+
+The Flow Builder supports **Handlebars template syntax** to dynamically reference event data in your automation nodes. This allows you to create personalized messages, conditional logic, and dynamic webhooks.
+
+### Available Variables
+
+| Variable | Description | Example Value |
+|----------|-------------|---------------|
+| `{{event.type}}` | Event type that triggered the flow | `payment.succeeded` |
+| `{{event.id}}` | Unique event identifier | `evt_abc123` |
+| `{{event.payload.*}}` | Any field from the event payload | `{{event.payload.amount}}` |
+| `{{event.createdAt}}` | Event creation timestamp | `2024-01-15T10:30:00Z` |
+
+### Usage Examples
+
+#### 1. Approval Node Messages
+
+Create dynamic approval messages that include event data:
+
+```handlebars
+Approval required for payment of ${{event.payload.amount}} {{event.payload.currency}}
+
+Customer: {{event.payload.customerId}}
+Transaction ID: {{event.id}}
+Requested at: {{event.createdAt}}
+```
+
+**Result**:
+```
+Approval required for payment of $5000 USD
+
+Customer: cust_456
+Transaction ID: evt_abc123
+Requested at: 2024-01-15T10:30:00Z
+```
+
+#### 2. Webhook Payloads
+
+Send dynamic data to external services:
+
+```json
+{
+  "event_type": "{{event.type}}",
+  "transaction": {
+    "amount": {{event.payload.amount}},
+    "currency": "{{event.payload.currency}}",
+    "customer_id": "{{event.payload.customerId}}"
+  },
+  "timestamp": "{{event.createdAt}}"
+}
+```
+
+#### 3. Conditional Logic
+
+Use template variables in condition nodes:
+
+```handlebars
+{{event.payload.amount}} > 10000
+```
+
+This evaluates to `true` if the payment amount exceeds $10,000.
+
+#### 4. Notification Messages
+
+Create personalized notifications:
+
+```handlebars
+🎉 Payment received!
+
+Amount: ${{event.payload.amount}}
+From: {{event.payload.customerName}}
+Status: {{event.payload.status}}
+```
+
+### Best Practices
+
+1. **Always validate data**: Use condition nodes to check if required fields exist
+2. **Use default values**: Handlebars supports `{{event.payload.name || "Unknown"}}`
+3. **Format numbers**: For currency, ensure proper formatting in your webhook handlers
+4. **Test with real events**: Use the CLI `sapliy listen` command to see actual event payloads
+
+### Supported Node Types
+
+| Node Type | Template Support |
+|-----------|------------------|
+| **Approval** | ✅ Message field |
+| **Webhook** | ✅ URL, headers, body |
+| **Notification** | ✅ Message content |
+| **Condition** | ✅ Expression evaluation |
+| **Debugger** | ✅ Log messages |
+
 ## Roadmap
 
 - **Phase 1** ✅ — Core flow builder, events, automations

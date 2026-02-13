@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import authService from '@/services/authService';
+import apiClient from '@/lib/apiClient';
 
 // User roles in the system
 export type UserRole = 'admin' | 'finance' | 'developer' | 'viewer';
@@ -121,7 +122,7 @@ const useAuthStore = create<AuthState>()(
             clearError: () => set({ error: null }),
 
             login: async (email: string, password: string) => {
-                const { setLoading, setError, setUser, setAccessToken } = get();
+                const { setLoading, setError, setUser, setAccessToken, setOrganization, setZones, setZone } = get();
 
                 setLoading(true);
                 setError(null);
@@ -130,6 +131,10 @@ const useAuthStore = create<AuthState>()(
                     const data = await authService.login(email, password);
 
                     setAccessToken(data.token);
+
+                    // Set auth cookie for Next.js middleware
+                    document.cookie = `auth-token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
                     setUser({
                         id: data.user.id,
                         email: data.user.email,
@@ -137,6 +142,27 @@ const useAuthStore = create<AuthState>()(
                         role: (data.user.role as UserRole) || 'developer',
                         email_verified: data.user.email_verified
                     });
+
+                    // Fetch organizations and zones after login
+                    try {
+                        const orgs = await apiClient.get<Organization[]>('/auth/organizations', {
+                            headers: { 'Authorization': `Bearer ${data.token}` }
+                        });
+                        if (orgs && orgs.length > 0) {
+                            setOrganization(orgs[0]);
+
+                            // Fetch zones for the first org
+                            const zones = await apiClient.get<Zone[]>(`/auth/zones?org_id=${orgs[0].id}`, {
+                                headers: { 'Authorization': `Bearer ${data.token}` }
+                            });
+                            if (zones && zones.length > 0) {
+                                setZones(zones);
+                                setZone(zones[0]);
+                            }
+                        }
+                    } catch (orgErr) {
+                        console.warn('Could not fetch orgs/zones after login:', orgErr);
+                    }
                 } catch (err) {
                     const message = err instanceof Error ? err.message : 'Login failed';
                     setError(message);

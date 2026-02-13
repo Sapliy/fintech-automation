@@ -4,6 +4,7 @@ import { AppNode } from '../nodes/types';
 import { Edge } from '@xyflow/react';
 import { useStoreNode } from './node.store';
 import { useAuthStore } from './auth.store';
+import apiClient from '@/lib/apiClient';
 
 // Flow Metadata (Lightweight)
 export interface FlowMetadata {
@@ -39,12 +40,13 @@ interface FlowState {
     // Actions
     setCurrentFlow: (id: string | null, name?: string) => void;
 
-    // API Actions (Simulated)
+    // API Actions
     loadFlows: () => Promise<void>;
     loadTemplates: () => Promise<void>;
     saveCurrentFlow: () => Promise<void>;
     loadFlowConfig: (id: string, isTemplate?: boolean) => Promise<void>;
     createNewFlow: (name: string, templateId?: string) => Promise<void>;
+    deleteFlow: (id: string) => Promise<void>;
 }
 
 // Mock Templates Data
@@ -137,18 +139,15 @@ const useFlowStore = create<FlowState>()(
                 if (!zone) return;
 
                 try {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_URL}/flows?zone_id=${zone.id}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        set({ savedFlows: data });
-                    }
+                    const data = await apiClient.get<FlowMetadata[]>(`/v1/flows?zone_id=${zone.id}`);
+                    set({ savedFlows: data || [] });
                 } catch (error) {
                     console.error('Failed to load flows:', error);
                 }
             },
 
             loadTemplates: async () => {
-                // Keep templates mock for now as they are predefined
+                // Keep templates mock for now as they are predefined UI presets
                 const templateMeta = MOCK_TEMPLATES.map(t => ({
                     id: t.id,
                     name: t.name,
@@ -175,7 +174,7 @@ const useFlowStore = create<FlowState>()(
                 }
 
                 const flowData = {
-                    id: currentFlowId || `fl_${Math.random().toString(36).substr(2, 9)}`,
+                    id: currentFlowId || undefined,
                     name: currentFlowName,
                     org_id: organization.id,
                     zone_id: zone.id,
@@ -185,23 +184,15 @@ const useFlowStore = create<FlowState>()(
                 };
 
                 try {
-                    const baseUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:8080';
-                    const method = currentFlowId ? 'PUT' : 'POST';
-                    const response = await fetch(`${baseUrl}/flows`, {
-                        method,
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(flowData)
-                    });
-
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.message || 'Failed to save flow');
+                    let savedFlow: FlowData;
+                    if (currentFlowId) {
+                        savedFlow = await apiClient.put<FlowData>(`/v1/flows/${currentFlowId}`, flowData);
+                    } else {
+                        savedFlow = await apiClient.post<FlowData>('/v1/flows', flowData);
                     }
 
-                    const savedFlow = await response.json();
-
                     set({
-                        currentFlowId: savedFlow.id || flowData.id,
+                        currentFlowId: savedFlow.id || currentFlowId,
                         isSaving: false
                     });
                     await get().loadFlows();
@@ -219,11 +210,7 @@ const useFlowStore = create<FlowState>()(
                     data = get().internalTemplates.find(t => t.id === id);
                 } else {
                     try {
-                        const baseUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:8080';
-                        const response = await fetch(`${baseUrl}/flows?id=${id}`);
-                        if (response.ok) {
-                            data = await response.json();
-                        }
+                        data = await apiClient.get<FlowData>(`/v1/flows/${id}`);
                     } catch (error) {
                         console.error('Failed to load flow config:', error);
                     }
@@ -253,6 +240,19 @@ const useFlowStore = create<FlowState>()(
                         currentFlowId: null,
                         currentFlowName: name
                     });
+                }
+            },
+
+            deleteFlow: async (id: string) => {
+                try {
+                    await apiClient.del(`/v1/flows/${id}`);
+                    set(state => ({
+                        savedFlows: state.savedFlows.filter(f => f.id !== id),
+                        currentFlowId: state.currentFlowId === id ? null : state.currentFlowId,
+                    }));
+                } catch (error) {
+                    console.error('Failed to delete flow:', error);
+                    throw error;
                 }
             }
         }),

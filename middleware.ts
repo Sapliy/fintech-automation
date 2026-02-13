@@ -7,6 +7,7 @@ const protectedRoutes = [
     '/builder',
     '/flows',
     '/data',
+    '/audit',
     '/packages',
     '/settings',
     '/templates',
@@ -27,13 +28,26 @@ const publicRoutes = [
     '/auth/reset-password',
 ];
 
+/**
+ * Decode a JWT and check if it's expired.
+ * Returns true if the token is valid (not expired), false otherwise.
+ */
+function isTokenValid(token: string): boolean {
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3) return false;
+        const payload = JSON.parse(atob(parts[1]));
+        if (!payload.exp) return true; // No expiry claim — treat as valid
+        return payload.exp * 1000 > Date.now();
+    } catch {
+        return false;
+    }
+}
+
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Get auth token from cookie or localStorage via cookie
-    // Note: In Next.js middleware, we can only access cookies, not localStorage
-    // The auth-storage from zustand persist is in localStorage, so we need
-    // to check via a cookie that we'll set on login
+    // Get auth token from cookie
     const authToken = request.cookies.get('auth-token')?.value;
 
     // Check if route is public (always allowed)
@@ -49,15 +63,21 @@ export function middleware(request: NextRequest) {
     // Check if route is an auth route (login, register, etc.)
     const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
 
-    // If user is not authenticated and trying to access protected route
-    if (isProtectedRoute && !authToken) {
+    // If user is not authenticated or token is expired, redirect to login
+    if (isProtectedRoute && (!authToken || !isTokenValid(authToken))) {
         const loginUrl = new URL('/auth/login', request.url);
         loginUrl.searchParams.set('redirect', pathname);
-        return NextResponse.redirect(loginUrl);
+
+        // Clear the expired cookie
+        const response = NextResponse.redirect(loginUrl);
+        if (authToken && !isTokenValid(authToken)) {
+            response.cookies.delete('auth-token');
+        }
+        return response;
     }
 
     // If user is authenticated and trying to access auth routes (login, register)
-    if (isAuthRoute && authToken) {
+    if (isAuthRoute && authToken && isTokenValid(authToken)) {
         return NextResponse.redirect(new URL('/', request.url));
     }
 
@@ -77,3 +97,4 @@ export const config = {
         '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*|_next).*)',
     ],
 };
+

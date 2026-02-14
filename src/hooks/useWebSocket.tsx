@@ -17,6 +17,7 @@ const useWebSocket = <T,>(
       urlObj.searchParams.set("api_key", TEST_KEY);
     }
 
+    console.log('[WebSocket] Attempting connection to:', urlObj.toString());
     const ws = new WebSocket(urlObj.toString());
     wsRef.current = ws;
 

@@ -29,7 +29,7 @@ function VerifyEmailContent() {
                 if (res.ok) {
                     setStatus('success');
                     setMessage(data.message || 'Email verified successfully!');
-                    setTimeout(() => router.push('/login'), 3000);
+                    setTimeout(() => router.push('/auth/login'), 3000);
                 } else {
                     setStatus('error');
                     setMessage(data.error || 'Verification failed. Token may be invalid or expired.');

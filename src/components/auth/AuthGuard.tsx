@@ -11,8 +11,8 @@ interface AuthGuardProps {
 
 export function AuthGuard({
     children,
-    requireAuth = true,
-    redirectTo = '/auth/login'
+    // requireAuth = true, // unused
+    // redirectTo = '/auth/login' // unused
 }: AuthGuardProps) {
     // Middleware handles protection now. 
     // This component is kept for API compatibility.
@@ -35,7 +35,7 @@ export function withAuth<P extends object>(
 }
 
 // Hook for checking auth status - Dummy implementation
-export function useRequireAuth(redirectTo = '/auth/login') {
+export function useRequireAuth(_redirectTo = '/auth/login') {
     // Always return authenticated as middleware handles the real check
     return { isAuthenticated: true, isLoading: false };
 }

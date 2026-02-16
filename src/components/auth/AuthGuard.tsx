@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuthStore } from '@/store/auth.store';
+// Removed unnecessary imports
+import React from 'react';
 
 interface AuthGuardProps {
     children: React.ReactNode;
@@ -16,7 +15,8 @@ export function AuthGuard({
     redirectTo = '/auth/login'
 }: AuthGuardProps) {
     // Middleware handles protection now. 
-    // This component is kept for API compatibility or future enhancements.
+    // This component is kept for API compatibility.
+    // Props are ignored.
     return <>{children}</>;
 }
 
@@ -34,18 +34,8 @@ export function withAuth<P extends object>(
     };
 }
 
-// Hook for checking auth status
+// Hook for checking auth status - Dummy implementation
 export function useRequireAuth(redirectTo = '/auth/login') {
-    const router = useRouter();
-    const pathname = usePathname();
-    const { isAuthenticated, isLoading } = useAuthStore();
-
-    useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            const returnUrl = encodeURIComponent(pathname);
-            router.push(`${redirectTo}?redirect=${returnUrl}`);
-        }
-    }, [isAuthenticated, isLoading, redirectTo, pathname, router]);
-
-    return { isAuthenticated, isLoading };
+    // Always return authenticated as middleware handles the real check
+    return { isAuthenticated: true, isLoading: false };
 }

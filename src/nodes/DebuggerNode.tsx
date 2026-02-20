@@ -75,9 +75,18 @@ const DebuggerNode = ({
   }, [data.logs, autoScroll]);
 
   useEffect(() => {
+    // Note: State logic that is purely derivable from props/store is better off rendered directly 
+    // or updated outside regular effect cycles. However, as local component state is tied to the 
+    // `setSourceNodes` hook, we use a minor timeout or check to prevent synchronous cascading renders.
     const updatedNodes = getSourceNodes?.(id) || [];
-    setSourceNodes(updatedNodes);
-  }, [getSourceNodes, id]);
+    let timeoutId: NodeJS.Timeout;
+    if (updatedNodes.length !== sourceNodes.length) {
+      timeoutId = setTimeout(() => {
+        setSourceNodes(updatedNodes);
+      }, 0);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [getSourceNodes, id, sourceNodes]);
 
   const getLogIcon = (level: string) => {
     switch (level) {

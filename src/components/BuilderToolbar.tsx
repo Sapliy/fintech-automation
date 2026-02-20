@@ -65,12 +65,12 @@ export default function BuilderToolbar() {
     };
 
     return (
-        <div className="flex items-center justify-between w-full h-16 px-6 bg-white border-b border-border shadow-sm z-30 relative">
+        <div className="flex items-center justify-between w-full h-16 px-6 bg-card border-b border-border shadow-sm z-30 relative">
             {/* Left side: Back & Name */}
             <div className="flex items-center gap-4">
                 <Link
                     href="/"
-                    className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+                    className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </Link>
@@ -132,8 +132,8 @@ export default function BuilderToolbar() {
                         className={`
                 flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200
                 ${isFlowsOpen
-                                ? 'bg-muted border-border text-foreground'
-                                : 'bg-white border-border text-muted-foreground hover:text-foreground hover:border-border/80 hover:bg-gray-50'
+                                ? 'bg-secondary border-border text-foreground'
+                                : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-border/80 hover:bg-secondary/50'
                             }
             `}
                     >
@@ -145,8 +145,8 @@ export default function BuilderToolbar() {
                     {isFlowsOpen && (
                         <>
                             <div className="fixed inset-0 z-40" onClick={() => setIsFlowsOpen(false)}></div>
-                            <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-border rounded-xl shadow-soft-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
-                                <div className="px-4 py-3 bg-gray-50/50 border-b border-border flex justify-between items-center">
+                            <div className="absolute right-0 top-full mt-2 w-72 bg-card border border-border rounded-xl shadow-lg py-1 z-50 animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
+                                <div className="px-4 py-3 bg-secondary/30 border-b border-border flex justify-between items-center">
                                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                         Your Flows
                                     </span>
@@ -155,14 +155,14 @@ export default function BuilderToolbar() {
                                             createNewFlow("Untitled Flow");
                                             setIsFlowsOpen(false);
                                         }}
-                                        className="p-1 hover:bg-white hover:shadow-sm rounded transition-all text-primary"
+                                        className="p-1 hover:bg-secondary hover:text-primary rounded transition-all text-muted-foreground"
                                         title="New Flow"
                                     >
                                         <Plus className="w-4 h-4" />
                                     </button>
                                 </div>
 
-                                <div className="max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
+                                <div className="max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                                     {savedFlows.length === 0 ? (
                                         <div className="px-8 py-8 text-center">
                                             <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2 text-gray-300">
@@ -177,7 +177,7 @@ export default function BuilderToolbar() {
                                             <button
                                                 key={flow.id}
                                                 onClick={() => handleLoadFlow(flow.id)}
-                                                className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex flex-col group border-b border-border/40 last:border-0"
+                                                className="w-full text-left px-4 py-3 hover:bg-secondary transition-colors flex flex-col group border-b border-border/40 last:border-0"
                                             >
                                                 <div className="flex justify-between items-start mb-1">
                                                     <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors truncate pr-4">

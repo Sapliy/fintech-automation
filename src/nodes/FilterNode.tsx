@@ -74,7 +74,11 @@ const FilterNode = ({
   // Apply filter and propagate data
   useEffect(() => {
     if (inputValue !== null) {
-      setIsFiltering(true);
+      let isSubmitting = true;
+
+      const scheduleStateUpdate = setTimeout(() => {
+        if (isSubmitting) setIsFiltering(true);
+      }, 0);
 
       const config = {
         value: inputValue,
@@ -86,17 +90,21 @@ const FilterNode = ({
       const passesFilter = ConditionEvaluator.evaluate(config);
 
       try {
-        // Update filter history
-        setFilterHistory((prev) =>
-          [
-            {
-              value: inputValue,
-              passed: passesFilter,
-              timestamp: new Date().toLocaleTimeString(),
-            },
-            ...prev,
-          ].slice(0, 5)
-        ); // Keep last 5 entries
+        // Update filter history asynchronously to prevent cascading renders
+        setTimeout(() => {
+          if (isSubmitting) {
+            setFilterHistory((prev) =>
+              [
+                {
+                  value: inputValue,
+                  passed: passesFilter,
+                  timestamp: new Date().toLocaleTimeString(),
+                },
+                ...prev,
+              ].slice(0, 5)
+            ); // Keep last 5 entries
+          }
+        }, 0);
 
         if (passesFilter) {
           setOutputValue(inputValue);
@@ -118,7 +126,15 @@ const FilterNode = ({
         console.error("Error in filter operation:", error);
       }
 
-      setTimeout(() => setIsFiltering(false), 500);
+      const stopFilteringTimeout = setTimeout(() => {
+        if (isSubmitting) setIsFiltering(false);
+      }, 500);
+
+      return () => {
+        isSubmitting = false;
+        clearTimeout(scheduleStateUpdate);
+        clearTimeout(stopFilteringTimeout);
+      };
     }
   }, [
     inputValue,
@@ -139,12 +155,12 @@ const FilterNode = ({
 
   return (
     <div
-      style={{ border: `2px solid ${selected ? filterColor.from : "white"}` }}
+      style={{ border: `2px solid ${selected ? filterColor.from : "transparent"}` }}
       className={`
-        shadow-lg rounded-lg bg-white border-2 
+        shadow-lg rounded-xl bg-card border border-border/60 
         transition-all duration-200 ease-in-out
-        hover:shadow-xl transform hover:-translate-y-1
-        min-w-[150px]
+        hover:shadow-primary/20 hover:border-primary/40 transform hover:-translate-y-1
+        min-w-[150px] overflow-hidden
       `}
     >
       {/* Header */}
@@ -189,12 +205,11 @@ const FilterNode = ({
       </div>
 
       {/* Body */}
-      <div className="px-4 py-3 bg-gray-50">
+      <div className="px-4 py-4 bg-secondary/30">
         <div className="space-y-3">
-          {/* Condition & Operator Selection */}
           <div className="flex gap-2 mb-2">
             <select
-              className="w-full p-2 border border-gray-300 rounded-md text-sm font-mono"
+              className="w-full p-2 bg-background border border-border rounded-md text-sm font-mono text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
               value={data.operator || '=='}
               onChange={(e) => updateNodeData?.(id, { operator: e.target.value })}
             >
@@ -218,21 +233,20 @@ const FilterNode = ({
             payload={data.filterValue}
           />
 
-          {/* Input/Output Values */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 mt-3">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
                   Input:
                 </span>
                 <div
                   className={`
-                  px-3 py-1 rounded-full text-sm font-medium
+                  px-2 py-0.5 rounded-full text-xs font-medium border
                   ${inputValue !== null
-                      ? "bg-indigo-100 text-indigo-800"
-                      : "bg-gray-100 text-gray-600"
+                      ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                      : "bg-muted text-muted-foreground border-border"
                     }
-                  ${isActive ? "animate-pulse" : ""}
+                  ${isActive ? "animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.5)]" : ""}
                 `}
                 >
                   {inputValue !== null ? inputValue : "Waiting..."}
@@ -242,17 +256,17 @@ const FilterNode = ({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
                   Output:
                 </span>
                 <div
                   className={`
-                  px-3 py-1 rounded-full text-sm font-medium
+                  px-2 py-0.5 rounded-full text-xs font-medium border
                   ${outputValue !== null
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-600"
+                      ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                      : "bg-muted text-muted-foreground border-border"
                     }
-                  ${isFiltering ? "animate-pulse" : ""}
+                  ${isFiltering ? "animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" : ""}
                 `}
                 >
                   {outputValue !== null ? outputValue : "No data passed"}
@@ -263,25 +277,25 @@ const FilterNode = ({
 
           {/* Advanced Settings */}
           {showAdvanced && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-border/60">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Status:</span>
+                  <span className="text-sm text-muted-foreground">Status:</span>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${outputValue !== null
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-400"
+                    className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold tracking-wide border ${outputValue !== null
+                      ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                      : "bg-muted text-muted-foreground border-border"
                       }`}
                   >
                     {outputValue !== null ? "Active" : "Inactive"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Alerts:</span>
+                  <span className="text-sm text-muted-foreground">Alerts:</span>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${isAlertEnabled
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-400"
+                    className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold tracking-wide border ${isAlertEnabled
+                      ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                      : "bg-muted text-muted-foreground border-border"
                       }`}
                   >
                     {isAlertEnabled ? "Enabled" : "Disabled"}
@@ -290,24 +304,24 @@ const FilterNode = ({
 
                 {/* Filter History */}
                 <div className="mt-2">
-                  <div className="text-sm text-gray-600 mb-2">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                     Recent Activity:
                   </div>
                   <div className="space-y-2">
                     {filterHistory.map((entry, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between text-sm"
+                        className="flex items-center justify-between text-sm p-2 bg-background border border-border/60 rounded-lg"
                       >
                         <div className="flex items-center gap-2">
                           {entry.passed ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-500" />
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                           ) : (
-                            <XCircle className="w-4 h-4 text-red-500" />
+                            <XCircle className="w-4 h-4 text-destructive" />
                           )}
-                          <span className="text-gray-600">{entry.value}</span>
+                          <span className="text-foreground font-mono text-xs">{entry.value}</span>
                         </div>
-                        <span className="text-gray-400 text-xs">
+                        <span className="text-muted-foreground/60 text-[10px] uppercase">
                           {entry.timestamp}
                         </span>
                       </div>

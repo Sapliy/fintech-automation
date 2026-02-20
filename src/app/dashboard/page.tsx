@@ -281,7 +281,7 @@ function DashboardContent() {
                             </div>
                         </div>
 
-                        <div className="bg-gradient-to-br from-accent to-blue-600 rounded-xl p-6 text-white shadow-lg relative overflow-hidden group">
+                        <div className="bg-linear-to-br from-accent to-blue-600 rounded-xl p-6 text-white shadow-lg relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Zap className="w-32 h-32 -mr-8 -mt-8" />
                             </div>

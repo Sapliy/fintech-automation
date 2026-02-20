@@ -113,14 +113,14 @@ const ConditionNode = ({
   return (
     <div
       style={{
-        border: `2px solid ${selected ? conditionColor.from : "white"}`,
+        border: `2px solid ${selected ? conditionColor.from : "transparent"}`,
       }}
       className={`
-        shadow-lg rounded-lg border-2
-        ${isValid ? "bg-green-50" : "bg-red-50"}
+        shadow-lg rounded-xl border border-border/60
+        ${isValid ? "bg-emerald-950/20" : "bg-card"}
         transition-all duration-300 ease-in-out
-        hover:shadow-xl transform hover:-translate-y-1
-        min-w-[250px]
+        hover:shadow-primary/20 hover:border-primary/40 transform hover:-translate-y-1
+        min-w-[250px] overflow-hidden
       `}
     >
       {/* Header */}
@@ -142,8 +142,8 @@ const ConditionNode = ({
       </div>
 
       {/* Body */}
-      <div className="px-4 py-3">
-        <div className="space-y-3">
+      <div className="px-4 py-4 bg-secondary/30">
+        <div className="space-y-4">
           {/* Condition Expression */}
           <ConditionExpression
             currentValue={currentValue}
@@ -154,11 +154,11 @@ const ConditionNode = ({
           {/* Result */}
           <div
             className={`
-            text-center text-sm font-medium rounded-full px-3 py-1
-            transition-colors duration-300
+            text-center text-xs font-semibold rounded-lg px-3 py-2 border
+            transition-colors duration-300 uppercase tracking-wider
             ${isValid
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                : "bg-destructive/10 text-destructive border-destructive/20"
               }
           `}
           >
@@ -169,32 +169,28 @@ const ConditionNode = ({
 
       {/* Handles with Path Indicators */}
       <div
-        className={`p-4 rounded-lg bg-white border-2 border-gray-200 transition-all duration-300 ease-in-out
-                    ${isValid
-            ? "bg-green-50 border-green-500"
-            : "bg-red-50  border-red-500"
-          }`}
+        className={`p-4 bg-background border-t border-border/60 transition-all duration-300 ease-in-out`}
       >
-        <div className="flex justify-center gap-8 px-4 py-2 border-gray-200">
+        <div className="flex justify-center gap-8 px-4 py-2">
           <div
             className={`flex items-center gap-2 text-xs font-medium
                           transition-colors duration-300
-                          ${isValid ? "text-green-600" : "text-gray-400"}`}
+                          ${isValid ? "text-emerald-500" : "text-muted-foreground"}`}
           >
             <div
               className={`w-2 h-2 rounded-full transition-colors duration-300 
-                          ${isValid ? "bg-green-500" : "bg-gray-300"}`}
+                          ${isValid ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-muted"}`}
             />
             <span>True Path</span>
           </div>
           <div
             className={`flex items-center gap-2 text-xs font-medium
                           transition-colors duration-300
-                          ${!isValid ? "text-red-600" : "text-gray-400"}`}
+                          ${!isValid ? "text-destructive" : "text-muted-foreground"}`}
           >
             <div
               className={`w-2 h-2 rounded-full transition-colors duration-300
-                          ${!isValid ? "bg-red-500" : "bg-gray-300"}`}
+                          ${!isValid ? "bg-destructive shadow-[0_0_8px_rgba(239,68,68,0.5)]" : "bg-muted"}`}
             />
             <span>False Path</span>
           </div>

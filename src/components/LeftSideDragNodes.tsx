@@ -158,7 +158,7 @@ const LeftSideDragNodes = ({ onDragStart }: TProps) => {
       className={`
         h-screen relative transform transition-all duration-300 ease-in-out
         ${open ? 'w-80' : 'w-12'}
-        bg-white border-r border-border shadow-soft-xl z-20
+        bg-card border-r border-border shadow-lg z-20
       `}
     >
       {/* Toggle Button */}
@@ -166,7 +166,7 @@ const LeftSideDragNodes = ({ onDragStart }: TProps) => {
         className={`
           absolute z-30 -right-3 top-6
           p-1.5 rounded-full shadow-md border border-border
-          bg-white hover:bg-muted text-muted-foreground
+          bg-card hover:bg-secondary text-muted-foreground
           transition-all duration-200
         `}
         onClick={() => setOpen(!open)}
@@ -177,7 +177,7 @@ const LeftSideDragNodes = ({ onDragStart }: TProps) => {
       {/* Sidebar Content */}
       <div className={`h-full flex flex-col ${!open ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-200`}>
         {/* Header */}
-        <div className="p-5 border-b border-border bg-gradient-to-b from-white to-gray-50/50">
+        <div className="p-5 border-b border-border bg-secondary/30">
           <div className="flex items-center gap-2 mb-1">
             <Workflow className="w-5 h-5 text-primary" />
             <h2 className="text-lg font-bold text-foreground">Flow Nodes</h2>
@@ -188,7 +188,7 @@ const LeftSideDragNodes = ({ onDragStart }: TProps) => {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-2 py-4 space-y-1 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+        <div className="flex-1 overflow-y-auto px-2 py-4 space-y-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
           {nodeCategories.map((category) => {
             const isExpanded = expandedCategories.includes(category.key);
             const CategoryIcon = category.icon;
@@ -198,10 +198,10 @@ const LeftSideDragNodes = ({ onDragStart }: TProps) => {
                 {/* Category Header */}
                 <button
                   onClick={() => toggleCategory(category.key)}
-                  className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-muted/50 rounded-lg transition-all group"
+                  className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-secondary/50 rounded-lg transition-all group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-1.5 rounded-md bg-white shadow-sm border border-border/50 group-hover:border-primary/20 group-hover:shadow-md transition-all">
+                    <div className="p-1.5 rounded-md bg-background shadow-sm border border-border/50 group-hover:border-primary/50 group-hover:shadow-md transition-all">
                       <CategoryIcon
                         className="w-4 h-4"
                         style={{ color: category.color }}
@@ -239,17 +239,16 @@ const LeftSideDragNodes = ({ onDragStart }: TProps) => {
                           onDragStart={(event) => onDragStart(event, node.type)}
                           className={`
                             group relative p-3 rounded-lg cursor-grab
-                            border border-border/60 bg-white
-                            hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5
+                            border border-border/60 bg-background
+                            hover:border-primary/50 hover:shadow-lg hover:-translate-y-0.5
                             active:scale-[0.98] active:shadow-sm
                             transition-all duration-200
                           `}
                         >
                           <div className="flex items-start gap-3">
                             <div
-                              className="p-2 rounded-lg shadow-sm shrink-0"
+                              className="p-2 rounded-lg bg-secondary/50 shrink-0"
                               style={{
-                                backgroundColor: nodeColor.from + '10',
                                 color: nodeColor.from
                               }}
                             >
@@ -267,7 +266,7 @@ const LeftSideDragNodes = ({ onDragStart }: TProps) => {
 
                           {/* Drag Indicator */}
                           <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="p-1 rounded bg-muted">
+                            <div className="p-1 rounded bg-secondary">
                               <ArrowRight className="w-3 h-3 text-muted-foreground" />
                             </div>
                           </div>

@@ -84,20 +84,20 @@ const NotificationNodeComp = ({
     };
 
     const statusColors: Record<string, string> = {
-        idle: 'bg-gray-100 text-gray-600',
-        sending: 'bg-yellow-100 text-yellow-700',
-        sent: 'bg-green-100 text-green-700',
-        failed: 'bg-red-100 text-red-700',
+        idle: 'bg-muted text-muted-foreground border-border',
+        sending: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+        sent: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+        failed: 'bg-destructive/10 text-destructive border-destructive/20',
     };
 
     return (
         <div
-            style={{ border: `2px solid ${selected ? actionColor?.from : 'white'}` }}
+            style={{ border: `2px solid ${selected ? actionColor?.from : 'transparent'}` }}
             className={`
-        shadow-lg rounded-lg bg-white border-2 
+        shadow-lg rounded-xl bg-card border border-border/60
         transition-all duration-300 ease-in-out
-        hover:shadow-xl transform hover:-translate-y-1
-        min-w-[280px]
+        hover:shadow-primary/20 hover:border-primary/40 transform hover:-translate-y-1
+        min-w-[280px] overflow-hidden
       `}
         >
             {/* Header */}
@@ -120,30 +120,30 @@ const NotificationNodeComp = ({
             </div>
 
             {/* Body */}
-            <div className="px-4 py-3 bg-gray-50 space-y-3">
+            <div className="px-4 py-4 bg-secondary/30 space-y-4">
                 {/* Channel Selector */}
                 <div className="relative">
-                    <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">
                         Channel
                     </label>
                     <button
                         onClick={() => setShowChannelDropdown(!showChannelDropdown)}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border-2 border-gray-200 bg-white hover:border-gray-300 transition-colors"
+                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg border border-border bg-background hover:border-border/80 transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
                     >
                         <div className="flex items-center gap-2">
                             <ChannelIcon
                                 className="w-4 h-4"
                                 style={{ color: currentChannel.color }}
                             />
-                            <span className="font-medium text-gray-700">
+                            <span className="font-medium text-foreground">
                                 {currentChannel.label}
                             </span>
                         </div>
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     </button>
 
                     {showChannelDropdown && (
-                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+                        <div className="absolute z-20 w-full mt-1 bg-card border border-border rounded-lg shadow-xl overflow-hidden">
                             {(Object.keys(channelConfig) as NotificationChannel[]).map((channel) => {
                                 const config = channelConfig[channel];
                                 const Icon = config.icon;
@@ -152,13 +152,13 @@ const NotificationNodeComp = ({
                                         key={channel}
                                         onClick={() => handleChannelChange(channel)}
                                         className={`
-                      w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-gray-50
-                      first:rounded-t-lg last:rounded-b-lg
-                      ${data.channel === channel ? 'bg-blue-50' : ''}
+                      w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-secondary/50
+                      first:rounded-t-lg last:rounded-b-lg border-b border-border/40 last:border-0
+                      ${data.channel === channel ? 'bg-primary/10 text-primary' : 'text-foreground'}
                     `}
                                     >
                                         <Icon className="w-4 h-4" style={{ color: config.color }} />
-                                        <span className="text-gray-700">{config.label}</span>
+                                        <span>{config.label}</span>
                                     </button>
                                 );
                             })}
@@ -168,7 +168,7 @@ const NotificationNodeComp = ({
 
                 {/* Recipient */}
                 <div>
-                    <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">
                         Recipient
                     </label>
                     <input
@@ -176,13 +176,13 @@ const NotificationNodeComp = ({
                         value={data.recipient || ''}
                         onChange={(e) => handleRecipientChange(e.target.value)}
                         placeholder={currentChannel.placeholder}
-                        className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 bg-white text-sm focus:border-blue-400 focus:outline-none"
+                        className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-muted-foreground/50"
                     />
                 </div>
 
                 {/* Message Template */}
                 <div>
-                    <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">
                         Message Template
                     </label>
                     <textarea
@@ -190,17 +190,17 @@ const NotificationNodeComp = ({
                         onChange={(e) => handleTemplateChange(e.target.value)}
                         placeholder="Payment of {{amount}} failed for {{customer}}..."
                         rows={2}
-                        className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 bg-white text-sm focus:border-blue-400 focus:outline-none resize-none"
+                        className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none placeholder:text-muted-foreground/50"
                     />
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-[10px] uppercase font-semibold text-muted-foreground mt-1.5">
                         Use {'{{field}}'} for dynamic values
                     </p>
                 </div>
 
                 {/* Status */}
-                <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-gray-500">Status</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[(data.status as string) || 'idle']}`}>
+                <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
+                    <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold tracking-wide border ${statusColors[(data.status as string) || 'idle']}`}>
                         {data.status || 'idle'}
                     </span>
                 </div>

@@ -161,30 +161,30 @@ export default function FlowBuilderPage() {
                         defaultEdgeOptions={{
                             type: "custom",
                             animated: true,
-                            style: { stroke: '#94a3b8', strokeWidth: 2 },
+                            style: { stroke: '#22d3ee', strokeWidth: 2 }, // Cyan edge default
                         }}
                         proOptions={{ hideAttribution: true }}
                         fitView
-                        className="bg-gray-50/50"
+                        className="bg-background"
                     >
                         <Background
                             variant={BackgroundVariant.Dots}
                             gap={20}
                             size={1}
-                            color="#cbd5e1"
+                            color="#334155" // Slate-700
                         />
                         <MiniMap
-                            className="bg-white! border! border-border! rounded-lg! shadow-lg! bottom-8! right-8!"
+                            className="bg-card! border! border-border! rounded-lg! shadow-lg! bottom-8! right-8!"
                             nodeColor={(n) => {
                                 if (n.type === 'trigger') return '#3b82f6';
                                 if (n.type === 'action') return '#10b981';
                                 if (n.type === 'condition') return '#8b5cf6';
                                 return '#cbd5e1';
                             }}
-                            maskColor="rgba(248, 250, 252, 0.7)"
+                            maskColor="rgba(15, 23, 42, 0.7)" // Slate-900 transparent
                         />
                         <Controls
-                            className="bg-white! border! border-border! shadow-sm! rounded-lg! p-1! left-8! bottom-8!"
+                            className="bg-card! border! border-border! shadow-sm! rounded-lg! p-1! left-8! bottom-8!"
                             showInteractive={false}
                         />
                     </ReactFlow>

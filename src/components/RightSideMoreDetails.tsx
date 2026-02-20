@@ -59,9 +59,9 @@ function RightSideMoreDetails({ id, type, data }: TProps) {
   const NodeIcon = getNodeIcon(type as string);
 
   return (
-    <div className="absolute top-0 right-0 h-full w-96 bg-white border-l border-border shadow-soft-2xl z-20 flex flex-col animate-in slide-in-from-right duration-300">
+    <div className="absolute top-0 right-0 h-full w-96 bg-card border-l border-border shadow-2xl z-20 flex flex-col animate-in slide-in-from-right duration-300">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-white sticky top-0 z-10">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-lg">
             <NodeIcon className="w-5 h-5 text-primary" />
@@ -113,7 +113,7 @@ function RightSideMoreDetails({ id, type, data }: TProps) {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-border bg-gray-50/50 text-center">
+      <div className="p-4 border-t border-border bg-secondary/30 text-center">
         <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
           Changes saved automatically

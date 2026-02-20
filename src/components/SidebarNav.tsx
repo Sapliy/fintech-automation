@@ -23,8 +23,8 @@ const SidebarNav = () => {
     const router = useRouter();
 
     return (
-        <div className="w-60 bg-card border-r border-border flex flex-col h-screen">
-            <div className="p-6 flex items-center">
+        <div className="w-64 md:w-60 bg-card border-r border-border flex flex-col h-full shadow-2xl md:shadow-none">
+            <div className="p-6 hidden md:flex items-center">
                 <img src="/sapliy-logo.png" alt="Sapliy Logo" className="w-8 h-8 mr-3 object-contain" />
                 <span className="text-xl font-bold tracking-tight text-foreground">Sapliy</span>
             </div>

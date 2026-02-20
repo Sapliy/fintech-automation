@@ -51,11 +51,12 @@
 
 :root {
     /* Base - Deep Void / Grafana style */
-    --background: 224 71% 8%; /* Dark Navy/Slate */
+    --background: 224 71% 8%;
+    /* Dark Navy/Slate */
     --foreground: 210 20% 98%;
 
     /* Primary: Distinctive Cyan */
-    --primary: 188 86% 53%; 
+    --primary: 188 86% 53%;
     --primary-foreground: 224 71% 8%;
 
     /* Secondary: Deep Blue/Slate for cards */
@@ -81,21 +82,12 @@
     /* Borders & Inputs */
     --border: 215 28% 16%;
     --input: 215 28% 16%;
-    --ring: 188 86% 53%; /* Cyan ring */
+    --ring: 188 86% 53%;
+    /* Cyan ring */
 
     /* Cards */
     --card: 222 47% 11%;
     --card-foreground: 210 20% 98%;
 
     --radius: 0.75rem;
-}
-
-@layer base {
-    * {
-        @apply border-border;
-    }
-
-    body {
-        @apply bg-background text-foreground;
-    }
 }

@@ -61,12 +61,12 @@ const EventTriggerNode = ({
 
     return (
         <div
-            style={{ border: `2px solid ${selected ? triggerColor.from : 'white'}` }}
+            style={{ border: `2px solid ${selected ? triggerColor.from : 'transparent'}` }}
             className={`
-        shadow-lg rounded-lg bg-white border-2 
+        shadow-lg rounded-xl bg-card border border-border/60 
         transition-all duration-200 ease-in-out
-        hover:shadow-xl transform hover:-translate-y-1
-        min-w-[280px]
+        hover:shadow-primary/20 hover:border-primary/40 transform hover:-translate-y-1
+        min-w-[280px] overflow-hidden
       `}
         >
             {/* Header */}
@@ -89,37 +89,37 @@ const EventTriggerNode = ({
             </div>
 
             {/* Body */}
-            <div className="px-4 py-3 bg-gray-50 space-y-3">
+            <div className="px-4 py-4 bg-secondary/30 space-y-4">
                 {/* Event Source Selector */}
                 <div className="relative">
-                    <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                         Event Source
                     </label>
                     <button
                         onClick={() => setShowSourceDropdown(!showSourceDropdown)}
                         className={`
               w-full flex items-center justify-between
-              px-3 py-2 rounded-lg border-2
-              ${sourceStyle ? `${sourceStyle.bg} ${sourceStyle.border}` : 'bg-white border-gray-200'}
-              hover:border-gray-300 transition-colors
+              px-3 py-2.5 rounded-lg border
+              ${sourceStyle ? `${sourceStyle.bg} ${sourceStyle.border}` : 'bg-background border-border'}
+              hover:border-border/80 transition-colors
             `}
                     >
-                        <span className={`font-medium ${sourceStyle?.text || 'text-gray-600'}`}>
+                        <span className={`font-medium ${sourceStyle?.text || 'text-foreground'}`}>
                             {data.source ? EventSourceLabels[data.source] : 'Select source...'}
                         </span>
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     </button>
 
                     {showSourceDropdown && (
-                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+                        <div className="absolute z-20 w-full mt-1 bg-card border border-border rounded-lg shadow-xl overflow-hidden">
                             {(Object.keys(EventSourceLabels) as EventSource[]).map((source) => (
                                 <button
                                     key={source}
                                     onClick={() => handleSourceChange(source)}
                                     className={`
-                    w-full px-3 py-2 text-left hover:bg-gray-50
-                    first:rounded-t-lg last:rounded-b-lg
-                    ${data.source === source ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}
+                    w-full px-3 py-2 text-left hover:bg-secondary/50
+                    first:rounded-t-lg last:rounded-b-lg border-b border-border/40 last:border-0
+                    ${data.source === source ? 'bg-primary/20 text-primary' : 'text-foreground'}
                   `}
                                 >
                                     {EventSourceLabels[source]}
@@ -132,29 +132,29 @@ const EventTriggerNode = ({
                 {/* Event Type Selector */}
                 {data.source && (
                     <div className="relative">
-                        <label className="text-xs font-medium text-gray-500 mb-1 block">
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                             Event Type
                         </label>
                         <button
                             onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                            className="w-full flex items-center justify-between px-3 py-2 rounded-lg border-2 border-gray-200 bg-white hover:border-gray-300 transition-colors"
+                            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg border border-border bg-background hover:border-border/80 transition-colors"
                         >
-                            <span className={`font-mono text-sm ${data.eventType ? 'text-gray-800' : 'text-gray-400'}`}>
+                            <span className={`font-mono text-xs ${data.eventType ? 'text-primary' : 'text-muted-foreground'}`}>
                                 {data.eventType || 'Select event type...'}
                             </span>
-                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                            <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         </button>
 
                         {showTypeDropdown && (
-                            <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                            <div className="absolute z-20 w-full mt-1 bg-card border border-border rounded-lg shadow-xl max-h-48 overflow-y-auto">
                                 {EventTypesBySource[data.source].map((eventType) => (
                                     <button
                                         key={eventType}
                                         onClick={() => handleEventTypeChange(eventType)}
                                         className={`
-                      w-full px-3 py-2 text-left font-mono text-sm hover:bg-gray-50
-                      first:rounded-t-lg last:rounded-b-lg
-                      ${data.eventType === eventType ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}
+                      w-full px-3 py-2 text-left font-mono text-xs hover:bg-secondary/50
+                      first:rounded-t-lg last:rounded-b-lg border-b border-border/40 last:border-0
+                      ${data.eventType === eventType ? 'bg-primary/20 text-primary' : 'text-foreground'}
                     `}
                                     >
                                         {eventType}
@@ -167,12 +167,12 @@ const EventTriggerNode = ({
 
                 {/* Last Event Preview */}
                 {data.lastEvent && (
-                    <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
-                        <div className="text-gray-500">Last event:</div>
-                        <div className="font-mono text-gray-700 truncate">
+                    <div className="mt-2 p-3 bg-background border border-border/60 rounded-lg text-xs">
+                        <div className="text-muted-foreground mb-1">Last event:</div>
+                        <div className="font-mono text-primary truncate mb-0.5">
                             {data.lastEvent.id}
                         </div>
-                        <div className="text-gray-400">
+                        <div className="text-muted-foreground/60 text-[10px] uppercase">
                             {new Date(data.lastEvent.timestamp).toLocaleTimeString()}
                         </div>
                     </div>

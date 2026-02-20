@@ -29,7 +29,7 @@ const AIAnalysisNode = ({
   // Effect to receive data from the connected source node
   useEffect(() => {
     if (data.value !== undefined) {
-      setInputValue(data.value);
+      setTimeout(() => setInputValue(data.value), 0);
     }
   }, [data.value]);
 
@@ -48,12 +48,12 @@ const AIAnalysisNode = ({
 
   return (
     <div
-      style={{ border: `2px solid ${selected ? aiNodeColor.from : "white"}` }}
+      style={{ border: `2px solid ${selected ? aiNodeColor.from : "transparent"}` }}
       className={`
-        shadow-lg rounded-lg bg-white border-2 
-        transition-all duration-200 ease-in-out
-        hover:shadow-xl transform hover:-translate-y-1
-        min-w-[280px]
+        shadow-lg rounded-xl bg-card border border-border/60
+        transition-all duration-300 ease-in-out
+        hover:shadow-primary/20 hover:border-primary/40 transform hover:-translate-y-1
+        min-w-[280px] overflow-hidden
       `}
     >
       {/* Input Handle */}
@@ -87,23 +87,23 @@ const AIAnalysisNode = ({
       </div>
 
       {/* Body */}
-      <div className="px-4 py-3 bg-gray-50">
-        <div className="space-y-3">
+      <div className="px-4 py-4 bg-secondary/30">
+        <div className="space-y-4">
           {/* Input Data Display */}
-          <div className="flex items-center text-sm text-gray-600">
-            <span className="font-medium mr-2">Input Data:</span>
-            <span className="font-mono text-xs bg-gray-200 px-2 py-0.5 rounded truncate max-w-[180px]">
+          <div className="flex items-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="mr-2">Input Data:</span>
+            <span className="font-mono text-xs bg-background border border-border/60 px-2 py-0.5 rounded-md truncate max-w-[180px] text-foreground lowercase">
               {String(inputValue)}
             </span>
           </div>
 
           {/* Instruction Input */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-600 block">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
               Analysis Instruction:
             </label>
             <textarea
-              className="w-full p-2 border border-gray-300 rounded-md text-sm h-20 resize-none"
+              className="w-full p-2.5 bg-background border border-border rounded-lg text-sm text-foreground focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none resize-none h-20"
               placeholder="E.g., 'Count objects in this image' or 'Analyze this temperature reading'"
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
@@ -114,13 +114,13 @@ const AIAnalysisNode = ({
           <button
             disabled={data.isProcessing}
             className={`
-              w-full py-2 px-3 rounded-md
-              text-white font-medium text-sm
+              w-full py-2.5 px-3 rounded-lg
+              font-semibold text-sm shadow-sm
               flex items-center justify-center gap-2
-              transition-colors duration-200
+              transition-all duration-200
               ${data.isProcessing
-                ? "bg-indigo-400 cursor-not-allowed"
-                : "bg-indigo-600 hover:bg-indigo-700"
+                ? "bg-primary/50 text-primary-foreground/50 cursor-not-allowed"
+                : "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-primary/25"
               }
             `}
           >
@@ -131,7 +131,7 @@ const AIAnalysisNode = ({
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 fill-current opacity-70" />
                 Run Analysis
               </>
             )}
@@ -139,15 +139,15 @@ const AIAnalysisNode = ({
 
           {/* Error Message */}
           {data.error && (
-            <div className="text-red-500 text-xs mt-1 bg-red-50 p-2 rounded">
+            <div className="text-destructive text-xs mt-2 bg-destructive/10 border border-destructive/20 p-2.5 rounded-lg">
               {data.error}
             </div>
           )}
 
           {/* Result Display */}
-          <div className="mt-3">
-            <div className="text-sm font-medium text-gray-600 mb-1">Analysis Result:</div>
-            <div className="bg-white p-3 border border-gray-300 rounded-md text-sm min-h-[60px] overflow-auto">
+          <div className="mt-4 pt-4 border-t border-border/60">
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Analysis Result:</div>
+            <div className="bg-background text-foreground p-3 border border-border/60 rounded-lg text-sm min-h-[60px] max-h-[120px] overflow-auto shadow-inner">
               {result}
             </div>
           </div>

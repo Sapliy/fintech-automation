@@ -69,20 +69,20 @@ const WebhookNode = ({
     };
 
     const statusColors = {
-        idle: 'bg-gray-100 text-gray-600',
-        pending: 'bg-yellow-100 text-yellow-700',
-        success: 'bg-green-100 text-green-700',
-        error: 'bg-red-100 text-red-700',
+        idle: 'bg-muted text-muted-foreground border-border',
+        pending: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+        success: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+        error: 'bg-destructive/10 text-destructive border-destructive/20',
     };
 
     return (
         <div
-            style={{ border: `2px solid ${selected ? webhookColor.from : 'white'}` }}
+            style={{ border: `2px solid ${selected ? webhookColor.from : 'transparent'}` }}
             className={`
-        shadow-lg rounded-lg bg-white border-2 
+        shadow-lg rounded-xl bg-card border border-border/60
         transition-all duration-300 ease-in-out
-        hover:shadow-xl transform hover:-translate-y-1
-        min-w-[300px]
+        hover:shadow-primary/20 hover:border-primary/40 transform hover:-translate-y-1
+        min-w-[300px] overflow-hidden
       `}
         >
             {/* Header */}
@@ -105,7 +105,7 @@ const WebhookNode = ({
             </div>
 
             {/* Body */}
-            <div className="px-4 py-3 bg-gray-50 space-y-3">
+            <div className="px-4 py-4 bg-secondary/30 space-y-4">
                 {/* Method + URL */}
                 <div className="flex gap-2">
                     {/* Method Selector */}
@@ -122,14 +122,14 @@ const WebhookNode = ({
                         </button>
 
                         {showMethodDropdown && (
-                            <div className="absolute z-20 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+                            <div className="absolute z-20 mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden">
                                 {(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as HttpMethod[]).map((method) => (
                                     <button
                                         key={method}
                                         onClick={() => handleMethodChange(method)}
                                         className={`
                       w-full px-3 py-2 text-left font-mono text-sm font-bold
-                      hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg
+                      hover:bg-secondary/50 first:rounded-t-lg last:rounded-b-lg border-b border-border/40 last:border-0
                       ${methodColors[method]}
                     `}
                                     >
@@ -146,7 +146,7 @@ const WebhookNode = ({
                         value={data.url || ''}
                         onChange={(e) => handleUrlChange(e.target.value)}
                         placeholder="https://api.example.com/webhook"
-                        className="flex-1 px-3 py-2 rounded-lg border-2 border-gray-200 bg-white text-sm font-mono focus:border-blue-400 focus:outline-none"
+                        className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm font-mono focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                     />
                 </div>
 
@@ -155,7 +155,7 @@ const WebhookNode = ({
                     <div>
                         <button
                             onClick={() => setShowBodyEditor(!showBodyEditor)}
-                            className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-700"
+                            className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
                         >
                             <Code className="w-3 h-3" />
                             {showBodyEditor ? 'Hide' : 'Edit'} Request Body
@@ -167,16 +167,16 @@ const WebhookNode = ({
                                 onChange={(e) => handleBodyChange(e.target.value)}
                                 placeholder='{"event": "{{event.type}}", "data": {{event.payload}}}'
                                 rows={3}
-                                className="w-full mt-2 px-3 py-2 rounded-lg border-2 border-gray-200 bg-white text-sm font-mono focus:border-blue-400 focus:outline-none resize-none"
+                                className="w-full mt-2 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm font-mono focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none"
                             />
                         )}
                     </div>
                 )}
 
                 {/* Status + Last Response */}
-                <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-gray-500">Status</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[data.status || 'idle']}`}>
+                <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
+                    <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold tracking-wide border ${statusColors[data.status || 'idle']}`}>
                         {data.status || 'idle'}
                         {data.lastResponse && ` (${data.lastResponse.statusCode})`}
                     </span>

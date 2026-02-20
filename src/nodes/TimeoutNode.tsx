@@ -95,9 +95,9 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
   };
 
   const getStatusColor = () => {
-    if (remainingTime === 0) return "bg-red-100 text-red-700";
-    if (isActive) return "bg-green-100 text-green-700";
-    return "bg-gray-100 text-gray-700";
+    if (remainingTime === 0) return "bg-destructive/10 text-destructive border-destructive/20";
+    if (isActive) return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+    return "bg-muted text-muted-foreground border-border";
   };
 
   const getStatusText = () => {
@@ -108,13 +108,13 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
 
   return (
     <div
-      style={{ border: `2px solid ${selected ? timeoutColor.from : "white"}` }}
+      style={{ border: `2px solid ${selected ? timeoutColor.from : "transparent"}` }}
       className={`
-        bg-white
-        shadow-lg rounded-lg border-2
+        bg-card
+        shadow-lg rounded-xl border border-border/60
         transition-all duration-300 ease-in-out
-        hover:shadow-xl transform hover:-translate-y-1
-        min-w-[300px]
+        hover:shadow-primary/20 hover:border-primary/40 transform hover:-translate-y-1
+        min-w-[300px] overflow-hidden
       `}
     >
       {/* Header */}
@@ -149,22 +149,22 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
       </div>
 
       {/* Body */}
-      <div className="px-4 py-3">
-        <div className="space-y-4">
+      <div className="px-4 py-4 bg-secondary/30">
+        <div className="space-y-5">
           {/* Timer Display */}
           <div className="flex flex-col items-center space-y-2">
-            <div className="text-4xl font-bold text-gray-800">
+            <div className="text-5xl font-mono font-bold text-foreground">
               {formatTime(remainingTime)}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
               {formatTime(data.duration)} total duration
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div className="w-full bg-background border border-border/60 rounded-full h-3">
             <div
-              className="h-2.5 rounded-full transition-all duration-300"
+              className="h-full rounded-full transition-all duration-300 shadow-sm"
               style={{
                 width: `${getProgressPercentage()}%`,
                 backgroundColor: remainingTime > data.duration * 0.3
@@ -177,27 +177,27 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
           </div>
 
           {/* Controls */}
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-3">
             {!isActive ? (
               <button
                 onClick={handleStart}
-                className="p-2 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                className="p-3 rounded-full bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors shadow-sm"
                 title="Start Timer"
               >
-                <Play className="w-5 h-5" />
+                <Play className="w-5 h-5 fill-current" />
               </button>
             ) : (
               <button
                 onClick={handlePause}
-                className="p-2 rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-colors"
+                className="p-3 rounded-full bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20 transition-colors shadow-sm"
                 title="Pause Timer"
               >
-                <Pause className="w-5 h-5" />
+                <Pause className="w-5 h-5 fill-current" />
               </button>
             )}
             <button
               onClick={handleReset}
-              className="p-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+              className="p-3 rounded-full bg-muted text-foreground hover:bg-secondary border border-border transition-colors shadow-sm"
               title="Reset Timer"
             >
               <RotateCcw className="w-5 h-5" />
@@ -206,34 +206,33 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
 
           {/* Advanced Settings */}
           {showAdvanced && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-border/60">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm text-gray-600">Duration (seconds):</label>
+                  <label className="text-sm text-muted-foreground">Duration (seconds):</label>
                   <input
                     type="number"
                     value={data.duration}
                     onChange={handleDurationChange}
                     min="1"
-                    style={{ border: `1px solid ${timeoutColor.from}` }}
-                    className="px-2 py-1 rounded-md text-sm w-24"
+                    className="px-2 py-1.5 rounded-md text-sm w-24 bg-background border border-border text-foreground font-mono focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Status:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}>
+                  <span className="text-sm text-muted-foreground">Status:</span>
+                  <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold tracking-wide border ${getStatusColor()}`}>
                     {getStatusText()}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Progress:</span>
-                  <span className="font-medium text-blue-600">
+                  <span className="text-sm text-muted-foreground">Progress:</span>
+                  <span className="font-mono text-sm font-semibold text-primary">
                     {getProgressPercentage().toFixed(0)}%
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Alert:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${isAlertEnabled ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
+                  <span className="text-sm text-muted-foreground">Alert:</span>
+                  <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold tracking-wide border ${isAlertEnabled ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
                     }`}>
                     {isAlertEnabled ? "Enabled" : "Disabled"}
                   </span>
@@ -244,16 +243,16 @@ const TimeoutNode = ({ data, selected, id, isConnectable }: NodeProps<TimeoutNod
 
           {/* Connected Sensors */}
           {sourceNodes.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+            <div className="mt-4 pt-4 border-t border-border/60">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
                 <AlertCircle className="w-4 h-4" />
                 <span>Connected Sensors</span>
               </div>
               <div className="space-y-2">
                 {sourceNodes.map((node) => (
-                  <div key={node?.id} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">{node?.data?.label as string}</span>
-                    <span className="font-medium">{node?.data?.value as string}</span>
+                  <div key={node?.id} className="flex items-center justify-between text-sm p-2 bg-background border border-border/60 rounded-lg">
+                    <span className="text-foreground font-medium">{node?.data?.label as string}</span>
+                    <span className="font-mono text-primary text-xs bg-primary/10 px-2 py-0.5 rounded-full">{node?.data?.value as string}</span>
                   </div>
                 ))}
               </div>

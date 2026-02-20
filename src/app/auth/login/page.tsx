@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
+import { motion } from 'framer-motion';
 
 function LoginContent() {
   const router = useRouter();
@@ -32,11 +33,18 @@ function LoginContent() {
   return (
     <div className="min-h-screen w-full flex bg-background">
       {/* Left Pane - Branding & Inspiration */}
-      <div className="hidden lg:flex w-1/2 relative bg-zinc-950 items-center justify-center overflow-hidden border-r border-white/5">
+      <motion.div
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="hidden lg:flex w-1/2 relative bg-background items-center justify-center overflow-hidden border-r border-border/40"
+      >
         {/* Animated Background Elements */}
+        <div className="absolute inset-0 z-0 bg-linear-to-br from-cyan-950/20 via-background to-background"></div>
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 -left-1/4 w-[150%] h-[150%] bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-primary/10 via-background to-background animate-pulse" style={{ animationDuration: '8s' }}></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,#000_10%,transparent_100%)]"></div>
+          <div className="absolute top-0 -left-1/4 w-[150%] h-[150%] bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-cyan-500/15 via-transparent to-transparent animate-pulse" style={{ animationDuration: '10s' }}></div>
+          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-blue-600/10 via-transparent to-transparent animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[linear-gradient(rgba(6,182,212,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.04)_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)]"></div>
         </div>
 
         {/* Content */}
@@ -62,14 +70,24 @@ function LoginContent() {
             Systems Operational
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Right Pane - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative">
-        {/* Subtle top gradient for mobile */}
-        <div className="lg:hidden absolute top-0 left-0 w-full h-32 bg-linear-to-b from-primary/5 to-transparent pointer-events-none"></div>
+      <motion.div
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+        className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative overflow-hidden"
+      >
+        {/* Decorative mobile glow */}
+        <div className="lg:hidden absolute top-0 left-0 w-full h-96 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-cyan-900/30 via-background to-background pointer-events-none"></div>
 
-        <div className="w-full max-w-md relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+          className="w-full max-w-md relative z-10"
+        >
           <div className="mb-10 lg:text-left text-center">
             {/* Mobile Logo */}
             <div className="flex lg:hidden items-center justify-center gap-3 mb-8">
@@ -83,7 +101,7 @@ function LoginContent() {
             <p className="text-muted-foreground">Sign in to your account to continue</p>
           </div>
 
-          <div className="bg-card/50 backdrop-blur-xl rounded-2xl p-8 sm:p-10 shadow-2xl border border-border/60">
+          <div className="bg-card/40 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 shadow-[0_8px_32px_rgba(6,182,212,0.05)] border border-white/5 relative z-10 before:absolute before:inset-0 before:bg-linear-to-b before:from-white/5 before:to-transparent before:rounded-3xl before:pointer-events-none">
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-start gap-3">
@@ -161,7 +179,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20 hover:shadow-primary/30 transform hover:-translate-y-0.5 active:translate-y-0"
+                className="w-full py-3.5 px-4 rounded-xl bg-linear-to-r from-cyan-500 to-blue-500 text-white font-bold tracking-wide hover:from-cyan-400 hover:to-blue-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-background transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -194,8 +212,8 @@ function LoginContent() {
             <span>&bull;</span>
             <Link href="#" className="hover:text-foreground transition-colors">Privacy</Link>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

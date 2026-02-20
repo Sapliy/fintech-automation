@@ -107,7 +107,9 @@ const FilterNode = ({
         }, 0);
 
         if (passesFilter) {
-          setOutputValue(inputValue);
+          setTimeout(() => {
+            if (isSubmitting) setOutputValue(inputValue);
+          }, 0);
           const targetNodes = getTargetNodes?.(id) ?? [];
           if (targetNodes.length > 0) {
             targetNodes.forEach((targetNode) => {

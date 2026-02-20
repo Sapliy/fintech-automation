@@ -50,21 +50,20 @@
 }
 
 :root {
-    /* Base - Deep Void / Grafana style */
-    --background: 224 71% 8%;
-    /* Dark Navy/Slate */
+    /* Base style */
+    --background: 200 45% 4%;
     --foreground: 210 20% 98%;
 
-    /* Primary: Distinctive Cyan */
-    --primary: 188 86% 53%;
-    --primary-foreground: 224 71% 8%;
+    /* Primary*/
+    --primary: 188 90% 50%;
+    --primary-foreground: 188 100% 8%;
 
-    /* Secondary: Deep Blue/Slate for cards */
-    --secondary: 215 28% 12%;
+    /* Secondary */
+    --secondary: 195 40% 12%;
     --secondary-foreground: 210 20% 98%;
 
     /* Muted: Subtle Blue-Grey */
-    --muted: 215 28% 16%;
+    --muted: 195 30% 16%;
     --muted-foreground: 217.9 10.6% 64.9%;
 
     /* Accent: Soft Indigo Wash */
@@ -80,13 +79,12 @@
     --warning: 38 92% 50%;
 
     /* Borders & Inputs */
-    --border: 215 28% 16%;
-    --input: 215 28% 16%;
-    --ring: 188 86% 53%;
-    /* Cyan ring */
+    --border: 195 30% 16%;
+    --input: 195 30% 16%;
+    --ring: 188 90% 50%;
 
     /* Cards */
-    --card: 222 47% 11%;
+    --card: 200 40% 6%;
     --card-foreground: 210 20% 98%;
 
     --radius: 0.75rem;

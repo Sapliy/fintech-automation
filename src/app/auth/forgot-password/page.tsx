@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import authService from '@/services/authService';
+import { motion } from 'framer-motion';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -33,7 +34,7 @@ export default function ForgotPasswordPage() {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-background relative overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-3xl max-h-3xl bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none opacity-50" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-3xl max-h-3xl bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-cyan-500/15 via-background to-background pointer-events-none opacity-60" />
         </div>
 
         <div className="relative z-10 w-full max-w-md px-6 text-center">
@@ -50,7 +51,7 @@ export default function ForgotPasswordPage() {
           <div className="space-y-5">
             <Link
               href="/auth/login"
-              className="block w-full py-3 px-8 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/25"
+              className="block w-full py-3.5 px-8 rounded-xl bg-linear-to-r from-cyan-500 to-blue-500 text-white font-bold hover:from-cyan-400 hover:to-blue-400 transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transform hover:-translate-y-0.5"
             >
               Back to Login
             </Link>
@@ -68,11 +69,18 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background relative overflow-hidden">
+      <div className="absolute inset-0 z-0 bg-linear-to-br from-cyan-950/10 via-background to-background"></div>
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0%,var(--tw-gradient-stops))] from-primary/5 via-background to-background pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0%,var(--tw-gradient-stops))] from-cyan-500/15 via-transparent to-transparent pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[linear-gradient(rgba(6,182,212,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.04)_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)]"></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-md px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 w-full max-w-md px-6"
+      >
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card border border-border/60 shadow-xl shadow-black/50 mb-6 overflow-hidden">
             <img src="/sapliy-logo.png" alt="Sapliy Logo" className="w-8 h-8 object-contain" />
@@ -81,7 +89,7 @@ export default function ForgotPasswordPage() {
           <p className="text-muted-foreground">No worries, we&apos;ll send you reset instructions</p>
         </div>
 
-        <div className="bg-card/50 backdrop-blur-xl rounded-2xl p-8 sm:p-10 shadow-2xl border border-border/60">
+        <div className="bg-card/40 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 shadow-[0_8px_32px_rgba(6,182,212,0.05)] border border-white/5 relative z-10 before:absolute before:inset-0 before:bg-linear-to-b before:from-white/5 before:to-transparent before:rounded-3xl before:pointer-events-none">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-start gap-3">
@@ -108,7 +116,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20 hover:shadow-primary/30 transform hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full py-3.5 px-4 rounded-xl bg-linear-to-r from-cyan-500 to-blue-500 text-white font-bold tracking-wide hover:from-cyan-400 hover:to-blue-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-background transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transform hover:-translate-y-0.5 active:translate-y-0"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -137,7 +145,7 @@ export default function ForgotPasswordPage() {
         <p className="text-center text-muted-foreground text-sm mt-8">
           &copy; {new Date().getFullYear()} Sapliy Fintech. All rights reserved.
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }

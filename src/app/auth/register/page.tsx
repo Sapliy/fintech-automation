@@ -108,7 +108,7 @@ export default function RegisterPage() {
               <div className="w-10 h-10 rounded-lg bg-card border border-border/60 flex items-center justify-center shadow-lg shadow-black/50 overflow-hidden">
                 <img src="/sapliy-logo.png" alt="Sapliy Logo" className="w-6 h-6 object-contain" />
               </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400">Sapliy Fintech</span>
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-black to-gray-400">Sapliy Fintech</span>
             </div>
 
             <h2 className="text-3xl font-bold text-foreground mb-2">Create an account</h2>
@@ -281,10 +281,10 @@ export default function RegisterPage() {
             <div className="w-12 h-12 rounded-xl bg-card border border-border/60 flex items-center justify-center shadow-lg shadow-black/50 overflow-hidden">
               <img src="/sapliy-logo.png" alt="Sapliy Logo" className="w-8 h-8 object-contain" />
             </div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400">Sapliy Fintech</span>
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-black to-gray-400">Sapliy Fintech</span>
           </div>
 
-          <blockquote className="text-2xl font-medium text-white mb-6 leading-tight border-l-2 border-primary pl-6 py-2">
+          <blockquote className="text-2xl font-medium text-black mb-6 leading-tight border-l-2 border-primary pl-6 py-2">
             "Automating our complex multi-region payment flows with Sapliy Studio cut our engineering overhead by 60%."
           </blockquote>
           <div className="flex items-center gap-4 mt-4">
@@ -292,7 +292,7 @@ export default function RegisterPage() {
               JD
             </div>
             <div>
-              <div className="font-semibold text-white">Jane Doe</div>
+              <div className="font-semibold text-black">Jane Doe</div>
               <div className="text-sm text-muted-foreground">CTO, GlobalPayments Inc.</div>
             </div>
           </div>

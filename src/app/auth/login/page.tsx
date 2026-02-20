@@ -54,10 +54,10 @@ function LoginContent() {
             <div className="w-12 h-12 rounded-xl bg-card border border-border/60 flex items-center justify-center shadow-lg shadow-black/50 overflow-hidden">
               <img src="/sapliy-logo.png" alt="Sapliy Logo" className="w-8 h-8 object-contain" />
             </div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400">Sapliy Fintech</span>
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-black to-gray-400">Sapliy Fintech</span>
           </div>
 
-          <h1 className="text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+          <h1 className="text-5xl font-extrabold text-gray-500 mb-6 leading-tight tracking-tight">
             Next-Gen <br />
             <span className="text-primary">Financial Automation.</span>
           </h1>
@@ -65,7 +65,7 @@ function LoginContent() {
             Streamline your financial operations, build powerful payment flows, and gain real-time insights with our enterprise-grade automation engine.
           </p>
 
-          <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground bg-white/5 px-4 py-2 border border-white/10 rounded-full backdrop-blur-md">
+          <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground bg-white/5 px-4 py-2 border border-green-500/50 rounded-full backdrop-blur-md">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
             Systems Operational
           </div>
@@ -94,7 +94,7 @@ function LoginContent() {
               <div className="w-10 h-10 rounded-lg bg-card border border-border/60 flex items-center justify-center shadow-lg shadow-black/50 overflow-hidden">
                 <img src="/sapliy-logo.png" alt="Sapliy Logo" className="w-6 h-6 object-contain" />
               </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400">Sapliy Fintech</span>
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-black to-gray-400">Sapliy Fintech</span>
             </div>
 
             <h2 className="text-3xl font-bold text-foreground mb-2">Welcome back</h2>

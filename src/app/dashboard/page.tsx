@@ -105,7 +105,7 @@ function DashboardContent() {
 
     if (loading && !stats.length) { // Only show full loader if no data
         return (
-            <div className="flex items-center justify-center h-full w-full bg-gray-50/50">
+            <div className="flex items-center justify-center h-full w-full bg-background/50">
                 <div className="flex flex-col items-center gap-3">
                     <Loader2 className="w-8 h-8 text-primary animate-spin" />
                     <p className="text-sm text-muted-foreground animate-pulse">Loading dashboard...</p>
@@ -115,9 +115,9 @@ function DashboardContent() {
     }
 
     return (
-        <div className="flex flex-col h-full w-full bg-gray-50/30 overflow-y-auto">
+        <div className="flex flex-col h-full w-full bg-background overflow-y-auto">
             {/* Header */}
-            <div className="bg-white border-b border-border sticky top-0 z-10 px-8 py-4">
+            <div className="bg-card border-b border-border sticky top-0 z-10 px-8 py-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 max-w-7xl mx-auto">
                     <div>
                         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
@@ -153,7 +153,7 @@ function DashboardContent() {
                     {stats.map((stat, i) => (
                         <div
                             key={stat.label}
-                            className="bg-white p-6 rounded-xl border border-border/60 shadow-sm hover:shadow-soft-xl transition-all duration-300 group"
+                            className="bg-card p-6 rounded-xl border border-border/60 shadow-lg hover:shadow-primary/10 transition-all duration-300 group"
                             style={{ animationDelay: `${i * 100}ms` }}
                         >
                             <div className="flex justify-between items-start mb-4">
@@ -161,7 +161,7 @@ function DashboardContent() {
                                     <stat.icon className="w-6 h-6" />
                                 </div>
                                 {stat.change && (
-                                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${stat.trend === 'up' ? 'text-emerald-600 bg-emerald-50' : 'text-muted-foreground bg-gray-100'}`}>
+                                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${stat.trend === 'up' ? 'text-emerald-400 bg-emerald-400/10' : 'text-muted-foreground bg-secondary'}`}>
                                         {stat.change}
                                     </span>
                                 )}
@@ -174,8 +174,8 @@ function DashboardContent() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Activity Feed */}
-                    <div className="lg:col-span-2 bg-white rounded-xl border border-border/60 shadow-sm overflow-hidden flex flex-col">
-                        <div className="px-6 py-4 border-b border-border/40 flex justify-between items-center bg-gray-50/30">
+                    <div className="lg:col-span-2 bg-card rounded-xl border border-border/60 shadow-lg overflow-hidden flex flex-col">
+                        <div className="px-6 py-4 border-b border-border/40 flex justify-between items-center bg-secondary/50">
                             <div>
                                 <h2 className="font-bold text-foreground">Recent Activity</h2>
                                 <p className="text-xs text-muted-foreground">Latest events and transactions</p>
@@ -197,8 +197,8 @@ function DashboardContent() {
                             ) : (
                                 <div className="divide-y divide-border/40">
                                     {recentActivity.map((activity) => (
-                                        <div key={activity.id} className="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
-                                            <div className={`p-2.5 rounded-full ${activity.status === 'success' ? 'bg-emerald-100/50 text-emerald-600' : 'bg-blue-100/50 text-blue-600'}`}>
+                                        <div key={activity.id} className="group flex items-center gap-4 p-4 hover:bg-secondary/50 transition-colors">
+                                            <div className={`p-2.5 rounded-full ${activity.status === 'success' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-primary/10 text-primary'}`}>
                                                 <activity.icon className="w-4 h-4" />
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -223,7 +223,7 @@ function DashboardContent() {
                                 </div>
                             )}
                         </div>
-                        <div className="p-3 border-t border-border/40 bg-gray-50/30 text-center">
+                        <div className="p-3 border-t border-border/40 bg-secondary/50 text-center">
                             <Link href="/activity" className="text-xs font-semibold text-primary hover:underline">
                                 View Full History
                             </Link>
@@ -232,8 +232,8 @@ function DashboardContent() {
 
                     {/* Quick Actions & Tips */}
                     <div className="space-y-6">
-                        <div className="bg-white rounded-xl border border-border/60 shadow-sm overflow-hidden">
-                            <div className="px-6 py-4 border-b border-border/40 bg-gray-50/30">
+                        <div className="bg-card rounded-xl border border-border/60 shadow-lg overflow-hidden">
+                            <div className="px-6 py-4 border-b border-border/40 bg-secondary/50">
                                 <h2 className="font-bold text-foreground">Quick Actions</h2>
                             </div>
                             <div className="p-4 space-y-3">
@@ -281,7 +281,7 @@ function DashboardContent() {
                             </div>
                         </div>
 
-                        <div className="bg-linear-to-br from-primary/90 to-blue-700 rounded-xl p-6 text-white shadow-lg relative overflow-hidden group">
+                        <div className="bg-gradient-to-br from-accent to-blue-600 rounded-xl p-6 text-white shadow-lg relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Zap className="w-32 h-32 -mr-8 -mt-8" />
                             </div>

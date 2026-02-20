@@ -30,7 +30,7 @@ export default function ClientLayout({
     // But middleware handles redirection mostly.
 
     return (
-        <div className="flex h-screen w-screen bg-gray-50 overflow-hidden">
+        <div className="flex h-screen w-screen bg-background text-foreground overflow-hidden">
             {!isAuthRoute && <SidebarNav />}
             <main className="flex-1 flex overflow-hidden relative">
                 {children}

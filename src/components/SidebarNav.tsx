@@ -23,12 +23,10 @@ const SidebarNav = () => {
     const router = useRouter();
 
     return (
-        <div className="w-60 bg-white border-r border-gray-100 flex flex-col h-screen">
+        <div className="w-60 bg-card border-r border-border flex flex-col h-screen">
             <div className="p-6 flex items-center">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-lg shadow-blue-100">
-                    <Zap className="text-white w-5 h-5 fill-current" />
-                </div>
-                <span className="text-xl font-bold tracking-tight text-gray-900">Sapliy</span>
+                <img src="/sapliy-logo.png" alt="Sapliy Logo" className="w-8 h-8 mr-3 object-contain" />
+                <span className="text-xl font-bold tracking-tight text-foreground">Sapliy</span>
             </div>
 
             <ZoneSelector
@@ -48,8 +46,8 @@ const SidebarNav = () => {
                             className={`
                                 flex flex-col items-center justify-center w-full aspect-square rounded-lg transition-all
                                 ${isActive
-                                    ? 'bg-blue-50 text-blue-600'
-                                    : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'}
+                                    ? 'bg-primary/20 text-primary border-l-2 border-primary'
+                                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}
                             `}
                             title={item.label}
                         >

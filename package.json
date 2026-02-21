@@ -14,6 +14,10 @@
   },
   "private": true,
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@types/three": "^0.183.1",
     "@xyflow/react": "^12.4.4",
     "axios": "^1.8.4",
     "date-fns": "^4.1.0",
@@ -23,12 +27,16 @@
     "postcss": "^8.5.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.71.2",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.0.0",
+    "three": "^0.183.1",
+    "zod": "^4.3.6",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^25.2.0",

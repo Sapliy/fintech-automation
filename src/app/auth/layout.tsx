@@ -30,10 +30,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 <div className="relative z-10 flex flex-col items-start max-w-lg">
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-12">
-                        <div className="w-12 h-12 rounded-xl bg-card border border-border/60 flex items-center justify-center shadow-lg shadow-black/50 overflow-hidden">
+                        <div className="w-12 h-12 rounded-xl bg-card border border-border/60 flex items-center justify-center shadow-lg shadow-white/50 overflow-hidden">
                             <img src="/sapliy-logo.png" alt="Sapliy Logo" className="w-8 h-8 object-contain" />
                         </div>
-                        <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-black to-gray-400">Sapliy Fintech</span>
+                        <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400">Sapliy Fintech</span>
                     </div>
 
                     <AnimatePresence mode="wait">
@@ -45,7 +45,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                             transition={{ duration: 0.5 }}
                             className="space-y-6"
                         >
-                            <h1 className="text-5xl font-extrabold text-gray-500 leading-tight tracking-tight">
+                            <h1 className="text-5xl font-extrabold text-white leading-tight tracking-tight">
                                 {isLogin ? (
                                     <>
                                         Next-Gen <br />
@@ -58,7 +58,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                                     </>
                                 )}
                             </h1>
-                            <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
+                            <p className="text-lg text-white leading-relaxed max-w-md">
                                 {isLogin
                                     ? "Streamline your financial operations, build powerful payment flows, and gain real-time insights with our enterprise-grade automation engine."
                                     : "Automating our complex multi-region payment flows with Sapliy Studio cut our engineering overhead by 60%."}
@@ -77,7 +77,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                             )}
 
                             {isLogin && (
-                                <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground bg-white/5 px-4 py-2 border border-green-500/50 rounded-full backdrop-blur-md inline-flex mt-4">
+                                <div className="flex items-center gap-4 text-sm text-white font-medium  bg-white/5 px-4 py-2 border border-green-500/50 rounded-full backdrop-blur-md inline-flex mt-4">
                                     <span className="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
                                     Systems Operational
                                 </div>
@@ -102,10 +102,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                             {/* Mobile Logo Header */}
                             <div className="mb-10 lg:hidden text-center">
                                 <div className="flex items-center justify-center gap-3 mb-8">
-                                    <div className="w-10 h-10 rounded-lg bg-card border border-border/60 flex items-center justify-center shadow-lg shadow-black/50 overflow-hidden">
+                                    <div className="w-10 h-10 rounded-lg bg-card border border-border/60 flex items-center justify-center shadow-lg shadow-white/50 overflow-hidden">
                                         <img src="/sapliy-logo.png" alt="Sapliy Logo" className="w-6 h-6 object-contain" />
                                     </div>
-                                    <span className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-black to-gray-400">Sapliy Fintech</span>
+                                    <span className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-300">Sapliy Fintech</span>
                                 </div>
                             </div>
 
